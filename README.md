@@ -51,7 +51,7 @@ When a [log](https://stardewvalleywiki.com/Mushroom_Log) generates mushrooms, it
 - To guarantee the maximum yield of **5 mushrooms per harvest**, a log must have at least **10 trees** in its 7x7 radius.
 - However, the number reducing the number of logs to fit 10 trees might not always increase total farm production.
 - Any trees beyond the 10th are always dead weight and taking up space that could be used for more logs or for walking space.
-- Because of rounding, it's also **preferable to have an even number of trees in proximity of the log**. Both 8 or 9 produce an average of 4.5 mushrooms per harvest. The 9th tree is also dead weight.
+- Because of rounding, it's also **preferable to have an even number of trees in proximity of the log**. Both 8 or 9 produce an average of 4.5 mushrooms per harvest. That 9th tree is also dead weight.
 
 ### Mushroom types
 
@@ -65,7 +65,7 @@ The game uses a weighted pool system to determine which mushrooms are produced.
   - **Immature trees, or any other tree types:** Adds another entry from the base distribution.
 - **Step 3:** The game picks one type randomly from this combined pool.
 
-Each tree contributes both to its own mushroom types, as well as the size of the basic pool. As such, the odds of a particular type don't necessarily increase with more and more trees. For instance, a mushroom log surrounded by 3 mystic trees has the same probability of producing purple mushroom as one surrounded by 9 mystic trees.
+Each tree contributes both to its own mushroom types, as well as the size of the basic pool. As such, the odds of a particular type don't necessarily increase with more and more trees. For instance, a mushroom log surrounded by 3 mystic trees has the same probability of producing purple mushrooms as one surrounded by 9 mystic trees. More trees just means more mushrooms regardless of type. The former will only produce 1-2 mushrooms per harvest, the latter produces 4-5. In both cases, ~62% of the harvests will be purple.
 
 ### Mushroom quality
 
@@ -76,6 +76,22 @@ Mushroom quality is determined by the number of nearby trees, and [mossy](https:
 Under-the-hood, mushroom logs are implemented as farm machines, like furnaces, kegs, etc. Counterintuitively, their output is determined at the time of the previous harvest (or when they are first placed). As such, the mushroom type produced may not match the trees surrounding it at the time of harvest. This is likely to be noticed during a farm's first harvest. The trees may have been immature when the logs were first placed, and immature trees contribute mushroom types from the "basic" pool. The correct types will be produced with the *second* harvest after all trees are mature.
 
 Any individual harvest is the same type and quality. This tool calculates the average output over all possibilities.
+
+### Maximizing moss production (Tree Fertilizer)
+
+tl;dr Using tree fertilizer will improve the quality of mushrooms on your farm via faster moss growth, in addition to getting your farm started faster.
+
+Tree saplings go through a number of stages, reaching maturity at stage 5. However, the stage continues to advance after maturity (to a maximum of 15) for the purpose of growing moss. Moss can only grow on trees that have reached at least stage 14. Moss growth rates depend on the season and weather, and moss disappears during winter. Harvesting moss sets the tree's growth stage back to 12-(number of moss harvested).
+
+If you apply [tree fertilizer](https://stardewvalleywiki.com/Tree_Fertilizer) to a oak, pine, maple, or green rain tree seed or sapling, it guarantees a 100% chance to advance a growth stage every night. Crucially, **this fertilized status remains permanently on the tree even after it reaches full maturity**. Because the tree remains "fertilized," it continues to apply that 100% daily growth check to the hidden stages. As a result, a tree fertilized as a sapling will regenerate moss much faster than a naturally grown tree. 
+
+Tree Fertilizer cannot later be applied to mature trees, so must be applied to a seed or sapling.
+
+Mossy green rain trees (type 1 and 2) accelerate moss growth on nearby trees. However, these tree types will produce lower value types of mushrooms if near a mushroom log, so are not a good idea for accelerating moss growth in a mushroom farm.
+
+Moss itself has no impact on the *type* or *quantity* of mushrooms produced, so if you're processing your mushrooms (not affected by quality), your mushroom farm can double as a moss farm.
+
+Mystic trees can't grow moss, but they're slow growing, so tree fertilizer is still a good idea.
 
 ### Tappers
 
