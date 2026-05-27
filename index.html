@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mushroom Masher - Stardew Valley</title>
+  <meta name="description"
+    content="Design optimal mushroom log farms for Stardew Valley. Place trees and mushroom logs, calculate harvest yields and gold income.">
+  <link rel="stylesheet" href="index.css">
+  <link rel="icon" type="image/png" href="assets/Purple_Mushroom.png">
+</head>
+
+<body>
+
+  <header class="app-header">
+    <h1><img src="assets/Purple_Mushroom.png" alt="Purple Mushroom"
+        style="width: 48px; height: 48px; vertical-align: text-bottom; margin-right: 4px; image-rendering: pixelated; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
+      Mushroom Masher</h1>
+    <p class="subtitle">Stardew Valley - Plan your mushroom log layouts for maximum profit</p>
+  </header>
+
+  <div class="app-layout">
+
+    <!-- ── Left Sidebar: Tools & Settings ──────────── -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Tool Palette -->
+      <div class="panel">
+        <h2 class="panel-title">🛠️ Place Items</h2>
+        <div class="tool-grid" id="tool-grid">
+          <button class="tool-btn" data-tool="oak" title="Oak Tree"><img src="assets/Acorn.png" class="tool-icon oak"
+              alt="Oak"></button>
+          <button class="tool-btn" data-tool="maple" title="Maple Tree"><img src="assets/Maple_Seed.png"
+              class="tool-icon maple" alt="Maple"></button>
+          <button class="tool-btn" data-tool="pine" title="Pine Tree"><img src="assets/Pine_Cone.png"
+              class="tool-icon pine" alt="Pine"></button>
+          <button class="tool-btn" data-tool="tree_mystic" title="Mystic Tree"><img src="assets/Mystic_Tree_Seed.png"
+              class="tool-icon tree_mystic" alt="Mystic"></button>
+          <button class="tool-btn" data-tool="tree_mahogany" title="Mahogany Tree"><img src="assets/Mahogany_Seed.png"
+              class="tool-icon tree_mahogany" alt="Mahogany"></button>
+          <button class="tool-btn" data-tool="tree_mushroom" title="Mushroom Tree"><img src="assets/Mushroom_Tree.png"
+              class="tool-icon tree_mushroom" alt="Mushroom Tree"></button>
+          <button class="tool-btn" data-tool="tree_green_rain" title="Green Rain Tree"><img
+              src="assets/Green_Rain_Tree_3.png" class="tool-icon tree_green_rain" alt="Green Rain"></button>
+          <button class="tool-btn" data-tool="moss" title="Moss"><img src="assets/Moss.png" class="tool-icon moss"
+              alt="Moss"></button>
+          <button class="tool-btn" data-tool="tapper" title="Tapper"><img src="assets/Tapper.png"
+              class="tool-icon tapper" alt="Tapper"></button>
+          <button class="tool-btn" data-tool="heavy_tapper" title="Heavy Tapper"><img src="assets/Heavy_Tapper.png"
+              class="tool-icon heavy_tapper" alt="Heavy Tapper"></button>
+          <button class="tool-btn" data-tool="mushlog" title="Mushroom Log"><img src="assets/Mushroom_Log.png"
+              class="tool-icon mushlog" alt="Mushroom Log"></button>
+          <button class="tool-btn" data-tool="eraser" title="Eraser"><img src="assets/Iridium_Axe.png"
+              class="tool-icon eraser" alt="Iridium Axe Eraser"></button>
+        </div>
+      </div>
+
+      <!-- Presets -->
+      <div class="panel">
+        <h2 class="panel-title">💾 Presets</h2>
+        <div class="setting-row" style="margin-bottom: 8px;">
+          <select id="preset-select" style="flex: 1; margin-right: 8px;">
+            <option value="">-- Select Preset --</option>
+          </select>
+          <button id="load-preset-btn" class="tool-btn" style="padding: 4px 8px; font-size: 0.75rem;">Load</button>
+          <button id="delete-preset-btn" class="tool-btn"
+            style="padding: 4px 8px; font-size: 0.75rem; margin-left: 4px;">Del</button>
+        </div>
+        <div class="setting-row" style="margin-bottom: 0;">
+          <input type="text" id="preset-name" placeholder="Preset name..."
+            style="flex: 1; margin-right: 8px; min-width: 0; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); color: var(--text-primary); padding: 4px 8px; border-radius: 4px;">
+          <button id="save-preset-btn" class="tool-btn" style="padding: 4px 8px; font-size: 0.75rem;">Save</button>
+        </div>
+      </div>
+
+      <!-- Grid Settings -->
+      <div class="panel">
+        <h2 class="panel-title">📐 Grid Settings</h2>
+        <div class="setting-row">
+          <label for="grid-width">Width</label>
+          <input type="number" id="grid-width" min="5" max="50" value="15">
+        </div>
+        <div class="setting-row">
+          <label for="grid-height">Height</label>
+          <input type="number" id="grid-height" min="5" max="50" value="15">
+        </div>
+        <div class="toggle-row">
+          <label>Tileable pattern</label>
+          <label class="toggle">
+            <input type="checkbox" id="tileable-mode">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <label>Wrap-around</label>
+          <label class="toggle">
+            <input type="checkbox" id="infinite-calc">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="tile-size-settings" style="display:none;">
+          <div class="setting-row">
+            <label for="tile-width">Tile W</label>
+            <input type="number" id="tile-width" min="3" max="50" value="7">
+          </div>
+          <div class="setting-row">
+            <label for="tile-height">Tile H</label>
+            <input type="number" id="tile-height" min="3" max="50" value="7">
+          </div>
+          <div class="tile-info">
+            <strong>Wrap-around:</strong> Calculates production as an
+            infinitely-repeating pattern. This can be used to evaluate the relative efficiency of different tileable
+            farm patterns.
+          </div>
+        </div>
+        <button class="clear-btn" id="clear-grid" style="margin-top: 8px;">
+          <img src="assets/Trash_Can_Iridium.png" alt="Clear"
+            style="height: 24px; width: 24px; vertical-align: middle; margin-right: 8px; image-rendering: pixelated; margin-top: -3px;">
+          Clear Grid
+        </button>
+      </div>
+
+      <!-- Location Settings -->
+      <div class="panel">
+        <h2 class="panel-title">🌍 Location</h2>
+        <div class="setting-row" style="margin-bottom: 0;">
+          <label for="farm-location">Region</label>
+          <select id="farm-location" style="width:110px;">
+            <option value="main">Main Farm</option>
+            <option value="ginger">Ginger Island</option>
+            <option value="desert">Desert</option>
+          </select>
+        </div>
+        <div class="toggle-row" style="margin-top: 8px;">
+          <label>Use Rain Totems</label>
+          <label class="toggle">
+            <input type="checkbox" id="rain-totem-mode">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="rain-frequency-display" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 10px;">
+          ~13.56% chance of rain per day
+        </div>
+      </div>
+
+      <!-- Processing Options -->
+      <div class="panel">
+        <h2 class="panel-title">🏭 Processing</h2>
+        <div class="toggle-row" style="margin-bottom: 12px; padding: 0;">
+          <label>Artisan Profession (+40%)</label>
+          <label class="toggle">
+            <input type="checkbox" id="artisan-profession">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row" style="margin-bottom: 12px; padding: 0;">
+          <label>Tapper Profession (+25%)</label>
+          <label class="toggle">
+            <input type="checkbox" id="tapper-profession">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row" style="margin-bottom: 12px; padding: 0;">
+          <label>Sync Tapper Harvests</label>
+          <label class="toggle">
+            <input type="checkbox" id="sync-tappers">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p style="font-size:0.7rem; color:var(--text-secondary); margin-bottom:8px;">Choose how to process each mushroom
+          type. The tool automatically bypasses processing for high-quality mushrooms if selling unprocessed is more
+          profitable.
+        </p>
+        <table class="processing-table" id="processing-table">
+          <thead>
+            <tr>
+              <th>Mushroom</th>
+              <th>Processing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--color-common)">Common</td>
+              <td>
+                <select data-mushroom="common" class="processing-select">
+                  <option value="raw">Sell Raw</option>
+                  <option value="preserves">Preserves Jar</option>
+                  <option value="dehydrator">Dehydrator</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--color-red)">Red</td>
+              <td>
+                <select data-mushroom="red" class="processing-select" disabled>
+                  <option value="raw">Sell Raw</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--color-morel)">Morel</td>
+              <td>
+                <select data-mushroom="morel" class="processing-select">
+                  <option value="raw">Sell Raw</option>
+                  <option value="preserves">Preserves Jar</option>
+                  <option value="dehydrator">Dehydrator</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--color-chanterelle)">Chanterelle</td>
+              <td>
+                <select data-mushroom="chanterelle" class="processing-select">
+                  <option value="raw">Sell Raw</option>
+                  <option value="preserves">Preserves Jar</option>
+                  <option value="dehydrator">Dehydrator</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td style="color:var(--color-purple)">Purple</td>
+              <td>
+                <select data-mushroom="purple" class="processing-select">
+                  <option value="raw">Sell Raw</option>
+                  <option value="preserves">Preserves Jar</option>
+                  <option value="dehydrator">Dehydrator</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </aside>
+
+    <!-- ── Main Grid Area ──────────────────────────── -->
+    <main class="main-area">
+      <div class="grid-wrapper">
+        <div class="farm-grid" id="farm-grid"></div>
+      </div>
+    </main>
+
+    <!-- ── Right Panel: Results ────────────────────── -->
+    <aside class="results-area" id="results-area">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h2 class="panel-title" style="margin:0;">📊 Results</h2>
+          <button id="show-math-btn" class="tool-btn" style="padding:4px 8px; font-size:0.65rem; display:none;">🧮 Show
+            Math</button>
+        </div>
+        <div id="results-content">
+          <div class="empty-state">
+            <img src="assets/Mushroom_Log.png" class="icon" alt="Log"
+              style="width: 48px; height: 48px; image-rendering: pixelated;">
+            <p>Place some <strong>Mushroom Logs</strong> and trees on the grid to instantly see your optimal yields and
+              gold income.</p>
+          </div>
+        </div>
+
+
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- ── Modal ─────────────────────────────────────── -->
+  <div id="math-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 style="font-size:0.8rem; color:var(--text-accent); margin:0;">🧮 Calculation Breakdown</h2>
+        <button class="modal-close" id="close-modal-btn">✖</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

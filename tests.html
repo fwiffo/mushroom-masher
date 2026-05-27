@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mushroom Farm Designer Tests</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #1e1e1e; color: #eee; padding: 20px; }
+    #test-results { font-family: monospace; white-space: pre-wrap; font-size: 14px; }
+    .pass { color: #4ade80; }
+    .fail { color: #f87171; font-weight: bold; }
+    .suite { margin-top: 20px; font-weight: bold; font-size: 16px; color: #60a5fa; }
+    #mock-dom { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Mushroom Farm Designer Test Suite</h1>
+  <div id="test-summary" style="margin-bottom: 20px; font-weight: bold;">Running tests...</div>
+  <div id="test-results"></div>
+
+  <!-- Mock DOM for app.js to attach to without crashing -->
+  <div id="mock-dom">
+    <div id="farm-grid"></div>
+    <div id="results-content"></div>
+    <div id="math-modal"></div>
+    <div id="math-modal-body"></div>
+    
+    <input type="number" id="tile-width" value="7">
+    <input type="number" id="tile-height" value="7">
+    <input type="checkbox" id="tileable-mode">
+    <input type="checkbox" id="moss-mode">
+    <input type="checkbox" id="infinite-calc">
+    <input type="checkbox" id="artisan-prof">
+    <select id="farm-location"><option value="main"></option></select>
+
+    <select id="proc-common"></select>
+    <select id="proc-red"></select>
+    <select id="proc-morel"></select>
+    <select id="proc-chanterelle"></select>
+    <select id="proc-purple"></select>
+
+    <button id="btn-clear"></button>
+    <button id="btn-reset"></button>
+    <button id="btn-close-modal"></button>
+    <button class="tool-btn" data-tool="oak"></button>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="tests.js"></script>
+</body>
+</html>
