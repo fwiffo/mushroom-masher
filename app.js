@@ -158,7 +158,7 @@ function updatePresetDropdown(presets) {
   const select = $('#preset-select');
   if (!select) return;
   const currentVal = select.value;
-  select.innerHTML = '<option value="">-- Select Preset --</option>';
+  select.innerHTML = '<option value="">-- Select --</option>';
   for (const name of Object.keys(presets)) {
     const opt = document.createElement('option');
     opt.value = name;
@@ -738,7 +738,7 @@ function calculateFarm(config) {
 
   // Harvest timing
   // Base: every 4 days. Rain reduces remaining time by an extra day.
-  // Main Farm normal: ~13.56%. Ginger Island: 24%. Desert: 0%.
+  // Main Farm normal: ~13.56%. Ginger Island: 24%. Calico Desert: 0%.
   // Rain Totems override probability to ~89% (considering un-totemable festival days and 1st of season).
   const daysPerYear = 112;
   let rainProb = config.farmLocation === 'ginger' ? 0.24 : config.farmLocation === 'desert' ? 0 : 0.1356;
@@ -1214,7 +1214,7 @@ function formatGold(amount) {
 function populateMathModal(results) {
   if (!results) return;
 
-  const loc = state.farmLocation === 'ginger' ? 'Ginger Island' : state.farmLocation === 'desert' ? 'Desert' : 'Main Farm';
+  const loc = state.farmLocation === 'ginger' ? 'Ginger Island' : state.farmLocation === 'desert' ? 'Calico Desert' : 'Main Farm';
   const rainProbPct = state.farmLocation === 'ginger' ? 24 : state.farmLocation === 'desert' ? 0 : 13.56;
   const rainProbStr = state.farmLocation === 'ginger' ? '24' : state.farmLocation === 'desert' ? '0' : '13.56';
 
