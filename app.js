@@ -77,6 +77,10 @@ function handleCellClick(r, c) {
 
   if (tool === 'eraser') {
     if (cell.type !== CELL_EMPTY) {
+      if (state.hoveredLog && state.hoveredLog.row === r && state.hoveredLog.col === c) {
+        highlightRange(r, c, false);
+        state.hoveredLog = null;
+      }
       state.grid[r][c] = { type: CELL_EMPTY, treeType: null, hasMoss: false };
       updateSingleCell(r, c);
       mirrorCellToTileableGrid(r, c);
@@ -131,6 +135,10 @@ function handleCellClick(r, c) {
   if (TREE_TYPES[tool]) {
     if (cell.type === CELL_TREE && cell.treeType === tool) {
       return;
+    }
+    if (state.hoveredLog && state.hoveredLog.row === r && state.hoveredLog.col === c) {
+      highlightRange(r, c, false);
+      state.hoveredLog = null;
     }
     state.grid[r][c] = { type: CELL_TREE, treeType: tool, hasMoss: false, tapper: null };
     updateSingleCell(r, c);
