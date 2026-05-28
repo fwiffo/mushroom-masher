@@ -268,7 +268,7 @@ function renderFarmOverview(results, gridArea) {
 
   let html = `
     <div class="results-section" style="margin-top:14px">
-      <h3 style="display:flex; align-items:center;"><img src="assets/Magnifying_Glass.png" class="header-icon"> FARM OVERVIEW</h3>
+      <h3 style="display:flex; align-items:center;"><img src="assets/Farm_Computer.png" class="header-icon"> FARM OVERVIEW</h3>
       <div class="stat-row">
         <span class="stat-label">Empty Space</span>
         <span class="stat-value">${results.emptyCount} (${emptyPct}%)</span>
