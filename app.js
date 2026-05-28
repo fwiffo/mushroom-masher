@@ -110,7 +110,17 @@ function handleCellClick(r, c) {
         highlightRange(r, c, false);
         state.hoveredLog = null;
       }
-      state.grid[r][c] = { type: CELL_TREE, treeType: tool, hasMoss: false, tapper: null };
+      let preservedTapper = null;
+      let preservedMoss = false;
+      if (cell.type === CELL_TREE) {
+        if (cell.tapper && TREE_TYPES[tool].tapper) {
+          preservedTapper = cell.tapper;
+        }
+        if (cell.hasMoss && !TREE_TYPES[tool].noMoss) {
+          preservedMoss = true;
+        }
+      }
+      state.grid[r][c] = { type: CELL_TREE, treeType: tool, hasMoss: preservedMoss, tapper: preservedTapper };
       changed = true;
     }
   }
