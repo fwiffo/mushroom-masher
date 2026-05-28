@@ -49,8 +49,12 @@ function initGrid() {
 }
 
 function resizeGrid() {
-  const newW = parseInt(gridWidthInput.value) || 15;
-  const newH = parseInt(gridHeightInput.value) || 15;
+  let newW = parseInt(gridWidthInput.value) || 15;
+  let newH = parseInt(gridHeightInput.value) || 15;
+  newW = Math.min(newW, 30);
+  newH = Math.min(newH, 30);
+  gridWidthInput.value = newW;
+  gridHeightInput.value = newH;
   const tw = parseInt(tileWidthInput.value) || 5;
   const th = parseInt(tileHeightInput.value) || 5;
 
@@ -73,7 +77,7 @@ function handleCellClick(r, c) {
   const tool = state.selectedTool;
   if (!tool) return;
   const cell = state.grid[r][c];
-  
+
   let changed = false;
 
   if (tool === 'eraser') {

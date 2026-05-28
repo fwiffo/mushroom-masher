@@ -145,9 +145,45 @@ function highlightRange(logR, logC, on) {
   }
 }
 
+function updateGridHighlighting(results) {
+  if (!farmGridEl) return;
+
+  // Clear existing unreachable flags
+  const cells = farmGridEl.querySelectorAll('.grid-cell');
+  cells.forEach(c => {
+    c.classList.remove('unreachable');
+    c.classList.remove('unreachable-path');
+    c.removeAttribute('title');
+  });
+
+  if (results) {
+    if (results.unreachableCells) {
+      for (const pos of results.unreachableCells) {
+        const idx = pos.r * state.gridWidth + pos.c;
+        if (cells[idx]) {
+          cells[idx].classList.add('unreachable');
+          cells[idx].title = "Unreachable by player";
+        }
+      }
+    }
+
+    if (results.unreachableEmptySpaces) {
+      for (const pos of results.unreachableEmptySpaces) {
+        const idx = pos.r * state.gridWidth + pos.c;
+        if (cells[idx]) {
+          cells[idx].classList.add('unreachable-path');
+          cells[idx].title = "Unreachable by player";
+        }
+      }
+    }
+  }
+}
+
 // ── Results Rendering ────────────────────────────────────────
 
 function renderResults(results) {
+  updateGridHighlighting(results);
+
   if (!resultsContent) return;
   state.lastResults = results;
   const hasTappers = results.tapperBreakdown && Object.keys(results.tapperBreakdown).length > 0;

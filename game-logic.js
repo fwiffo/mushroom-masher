@@ -191,11 +191,35 @@ function calculateMushroomLog(grid, logR, logC, gridW, gridH, config) {
 }
 
 function calculateFarm(config) {
-  const { emptyCount, treeCount, treeCountsByType, rawLogs } = analyzeMushroomGrid(config);
+  const { emptyCount, treeCount, treeCountsByType, rawLogs, reachableEmpty, unreachableCells } = analyzeMushroomGrid(config);
   const { avgCycleDays, totalHarvests } = calculateHarvestTiming(config);
-  
+
   const logEcon = calculateLogEconomics(rawLogs, avgCycleDays, config);
-  const tapperEcon = calculateTapperEconomics(config, avgCycleDays);
+  const tapperEcon = calculateTapperEconomics(config, avgCycleDays, reachableEmpty);
+
+  const allUnreachable = [...unreachableCells, ...tapperEcon.unreachableTappers];
+
+  const unreachableEmptySpaces = [];
+  const emptySpaceSet = new Set();
+
+  for (const cell of allUnreachable) {
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const nr = cell.r + dr;
+        const nc = cell.c + dc;
+        if (nr >= 0 && nr < config.gridHeight && nc >= 0 && nc < config.gridWidth) {
+           if (config.grid[nr][nc].type === CELL_EMPTY) {
+             const key = `${nr},${nc}`;
+             if (!emptySpaceSet.has(key)) {
+               emptySpaceSet.add(key);
+               unreachableEmptySpaces.push({ r: nr, c: nc });
+             }
+           }
+        }
+      }
+    }
+  }
 
   return {
     emptyCount,
@@ -212,15 +236,56 @@ function calculateFarm(config) {
     jarsRequired: logEcon.jarsRequired,
     totalTapperGoldPerYear: tapperEcon.totalTapperGoldPerYear,
     tapperBreakdown: tapperEcon.tapperBreakdown,
+    unreachableCells: allUnreachable,
+    unreachableEmptySpaces,
   };
+}
+
+function calculateReachableSpaces(grid, w, h) {
+  const reachable = Array(h).fill(false).map(() => Array(w).fill(false));
+  const queue = [];
+
+  for (let r = 0; r < h; r++) {
+    for (let c = 0; c < w; c++) {
+      if (r === 0 || r === h - 1 || c === 0 || c === w - 1) {
+        if (grid[r][c].type === CELL_EMPTY) {
+          reachable[r][c] = true;
+          queue.push({ r, c });
+        }
+      }
+    }
+  }
+
+  let head = 0;
+  while (head < queue.length) {
+    const { r, c } = queue[head++];
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr >= 0 && nr < h && nc >= 0 && nc < w) {
+          if (grid[nr][nc].type === CELL_EMPTY && !reachable[nr][nc]) {
+            reachable[nr][nc] = true;
+            queue.push({ r: nr, c: nc });
+          }
+        }
+      }
+    }
+  }
+
+  return reachable;
 }
 
 function analyzeMushroomGrid(config) {
   const { grid, gridWidth: w, gridHeight: h } = config;
   const rawLogs = [];
+  const unreachableCells = [];
   let emptyCount = 0;
   let treeCount = 0;
   const treeCountsByType = {};
+
+  const reachableEmpty = calculateReachableSpaces(grid, w, h);
 
   for (let r = 0; r < h; r++) {
     for (let c = 0; c < w; c++) {
@@ -232,12 +297,26 @@ function analyzeMushroomGrid(config) {
         treeCountsByType[cell.treeType] = (treeCountsByType[cell.treeType] || 0) + 1;
       } else if (cell.type === CELL_MUSHLOG) {
         const result = calculateMushroomLog(grid, r, c, w, h, config);
-        rawLogs.push({ row: r, col: c, ...result });
+
+        let unreachable = true;
+        if (r === 0 || r === h - 1 || c === 0 || c === w - 1) {
+          unreachable = false;
+        } else {
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              if (reachableEmpty[r + dr][c + dc]) unreachable = false;
+            }
+          }
+        }
+
+        if (unreachable) unreachableCells.push({ r, c });
+        rawLogs.push({ row: r, col: c, unreachable, ...result });
       }
     }
   }
 
-  return { emptyCount, treeCount, treeCountsByType, rawLogs };
+  return { emptyCount, treeCount, treeCountsByType, rawLogs, reachableEmpty, unreachableCells };
 }
 
 function calculateHarvestTiming(config) {
@@ -310,10 +389,11 @@ function calculateLogEconomics(rawLogs, avgCycleDays, config) {
   return { perLogResults, totalGoldPerHarvest, dehydratorsRequired, jarsRequired };
 }
 
-function calculateTapperEconomics(config, avgCycleDays) {
+function calculateTapperEconomics(config, avgCycleDays, reachableEmpty) {
   const { grid, gridWidth: w, gridHeight: h } = config;
   let totalTapperGoldPerYear = 0;
   const tapperBreakdown = {};
+  const unreachableTappers = [];
 
   for (let r = 0; r < h; r++) {
     for (let c = 0; c < w; c++) {
@@ -322,6 +402,20 @@ function calculateTapperEconomics(config, avgCycleDays) {
         const treeInfo = TREE_TYPES[cell.treeType];
         const tapperData = treeInfo.tapper;
         if (!tapperData) continue;
+
+        let unreachable = true;
+        if (r === 0 || r === h - 1 || c === 0 || c === w - 1) {
+          unreachable = false;
+        } else {
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              if (reachableEmpty[r + dr][c + dc]) unreachable = false;
+            }
+          }
+        }
+        if (unreachable) unreachableTappers.push({ r, c });
+
         const isHeavy = cell.tapper === 'heavy_tapper';
         const tapperName = isHeavy ? 'Heavy Tapper' : 'Tapper';
         const tapperDays = isHeavy ? tapperData.heavyTapperDays : tapperData.tapperDays;
@@ -355,5 +449,5 @@ function calculateTapperEconomics(config, avgCycleDays) {
     }
   }
 
-  return { totalTapperGoldPerYear, tapperBreakdown };
+  return { totalTapperGoldPerYear, tapperBreakdown, unreachableTappers };
 }
