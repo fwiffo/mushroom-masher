@@ -53,14 +53,13 @@ function getProcessingDecision(mushroomKey, quality, processingMethod, artisanPr
 
 // Tree types and their mushroom contributions
 const TREE_TYPES = {
-  oak: { name: 'Oak Tree', emoji: 'assets/Acorn.png', mushroomType: 'morel', tapper: { name: 'Oak Resin', price: 150, tapperDays: 7, heavyTapperDays: 3, winter: true } },
-  // Note: Maple trees have a hardcoded 90% Red / 10% Purple split in calculateMushroomLog()
-  maple: { name: 'Maple Tree', emoji: 'assets/Maple_Seed.png', mushroomType: 'red', tapper: { name: 'Maple Syrup', price: 200, tapperDays: 9, heavyTapperDays: 4, winter: true } },
-  pine: { name: 'Pine Tree', emoji: 'assets/Pine_Cone.png', mushroomType: 'chanterelle', tapper: { name: 'Pine Tar', price: 100, tapperDays: 5, heavyTapperDays: 2, winter: true } },
-  mystic: { name: 'Mystic Tree', emoji: 'assets/Mystic_Tree_Seed.png', mushroomType: 'purple', noMoss: true, tapper: { name: 'Mystic Syrup', price: 1000, tapperDays: 7, heavyTapperDays: 3, winter: true } },
-  mahogany: { name: 'Mahogany Tree', emoji: 'assets/Mahogany_Seed.png', mushroomType: null, tapper: { name: 'Sap', price: 2, tapperDays: 1, heavyTapperDays: 1, winter: true } },
-  mushroom: { name: 'Mushroom Tree', emoji: 'assets/Mushroom_Tree.png', mushroomType: null, noMoss: true, tapper: { name: 'Mushrooms (Mixed)', price: 65, tapperDays: 2.15, heavyTapperDays: 2.15, winter: false } },
-  green_rain: { name: 'Green Rain Tree (Type 3)', emoji: 'assets/Green_Rain_Tree_3.png', mushroomType: null, noMoss: true, tapper: { name: 'Fiddlehead Fern', price: 90, tapperDays: 1, heavyTapperDays: 1, winter: false } },
+  oak: { name: 'Oak Tree', emoji: 'assets/Acorn.png', mushroomYield: { morel: 1.0 }, tapper: { name: 'Oak Resin', price: 150, tapperDays: 7, heavyTapperDays: 3, winter: true } },
+  maple: { name: 'Maple Tree', emoji: 'assets/Maple_Seed.png', mushroomYield: { red: 0.9, purple: 0.1 }, tapper: { name: 'Maple Syrup', price: 200, tapperDays: 9, heavyTapperDays: 4, winter: true } },
+  pine: { name: 'Pine Tree', emoji: 'assets/Pine_Cone.png', mushroomYield: { chanterelle: 1.0 }, tapper: { name: 'Pine Tar', price: 100, tapperDays: 5, heavyTapperDays: 2, winter: true } },
+  mystic: { name: 'Mystic Tree', emoji: 'assets/Mystic_Tree_Seed.png', mushroomYield: { purple: 1.0 }, noMoss: true, tapper: { name: 'Mystic Syrup', price: 1000, tapperDays: 7, heavyTapperDays: 3, winter: true } },
+  mahogany: { name: 'Mahogany Tree', emoji: 'assets/Mahogany_Seed.png', mushroomYield: null, tapper: { name: 'Sap', price: 2, tapperDays: 1, heavyTapperDays: 1, winter: true } },
+  mushroom: { name: 'Mushroom Tree', emoji: 'assets/Mushroom_Tree.png', mushroomYield: null, noMoss: true, tapper: { name: 'Mushrooms (Mixed)', price: 65, tapperDays: 2.15, heavyTapperDays: 2.15, winter: false } },
+  green_rain: { name: 'Green Rain Tree (Type 3)', emoji: 'assets/Green_Rain_Tree_3.png', mushroomYield: null, noMoss: true, tapper: { name: 'Fiddlehead Fern', price: 90, tapperDays: 1, heavyTapperDays: 1, winter: false } },
 };
 
 const CELL_EMPTY = 0;
@@ -145,15 +144,14 @@ function calculateMushroomLog(grid, logR, logC, gridW, gridH, config) {
     const treeInfo = TREE_TYPES[tree.treeType];
     if (!treeInfo) continue;
 
-    if (treeInfo.mushroomType === null) {
+    if (!treeInfo.mushroomYield) {
       typeProbs.common += basicCommon;
       typeProbs.red += basicRed;
       typeProbs.purple += basicPurple;
-    } else if (tree.treeType === 'maple') {
-      typeProbs.red += 0.9;
-      typeProbs.purple += 0.1;
     } else {
-      typeProbs[treeInfo.mushroomType] += 1.0;
+      for (const [mtype, prob] of Object.entries(treeInfo.mushroomYield)) {
+        typeProbs[mtype] += prob;
+      }
     }
   }
 
