@@ -445,7 +445,7 @@ function renderPerLogDetails(results) {
           <span class="chevron">▶</span>
         </div>
         <div class="log-detail-body">
-          <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
+          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
             <strong>Located at:</strong> ${group.coords.join(', ')}
           </div>
           <div class="stat-row vertical">
@@ -474,7 +474,7 @@ function renderPerLogDetails(results) {
             <span class="stat-value">${(log.upgradeChance * 100).toFixed(1)}%</span>
           </div>
           <div style="margin-top:6px">
-            <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:4px">Quality distribution:</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Quality distribution:</div>
             <div class="quality-row">
     `;
     for (let q = 0; q < 4; q++) {

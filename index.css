@@ -34,10 +34,10 @@
   --color-morel: #d97706;
   --color-chanterelle: #f59e0b;
 
-  --quality-base: #94a3b8;
-  --quality-silver: #cbd5e1;
-  --quality-gold: #fde047;
-  --quality-iridium: #c084fc;
+  --quality-base: #52525b;
+  --quality-silver: #475569;
+  --quality-gold: #b45309;
+  --quality-iridium: #7e22ce;
 
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -211,7 +211,7 @@ h3 .header-icon {
   padding: 8px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(251, 191, 36, 0.1);
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
@@ -662,7 +662,7 @@ img.result-icon {
 }
 
 .stat-row.mini .stat-label {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -772,8 +772,8 @@ details.results-section summary span {
   font-size: 0.7rem;
   padding: 4px 8px;
   border-radius: 4px;
-  font-weight: 600;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
 }
 
 .quality-badge.normal {
@@ -876,7 +876,7 @@ details.results-section summary span {
   background: rgba(255, 255, 255, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-md);
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   overflow: hidden;
   transition: all var(--transition-fast);
 }
@@ -892,7 +892,7 @@ details.results-section summary span {
   align-items: center;
   padding: 12px 14px;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1008,7 +1008,7 @@ details.results-section summary span {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
@@ -1075,7 +1075,7 @@ details.results-section summary span {
 }
 
 .modal-body code {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.5);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: monospace;
