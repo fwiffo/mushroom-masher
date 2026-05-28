@@ -56,33 +56,42 @@ setTimeout(() => {
 }, 500);
 
 function runTests() {
-  describe('getProcessingDecision() - Pricing Logic', () => {
-    it('returns raw price for "raw" processing', () => {
-      // Common mushroom base=40
-      const dec = getProcessingDecision('common', 0, 'raw', false);
-      assertEqual(dec, { price: 40, actualProc: 'raw' });
-
+  describe('getRawPrice() - Base Pricing Logic', () => {
+    it('calculates raw price correctly based on quality', () => {
+      // Common mushroom basePrice=40
+      assertEqual(getRawPrice('common', 0), 40);
       // Iridium common (40 * 2 = 80)
-      const decIr = getProcessingDecision('common', 3, 'raw', false);
-      assertEqual(decIr, { price: 80, actualProc: 'raw' });
+      assertEqual(getRawPrice('common', 3), 80);
+    });
+  });
+
+  describe('getProcessedPrice() - Machine Pricing Logic', () => {
+    it('returns null for raw or red mushroom processing', () => {
+      assertEqual(getProcessedPrice('common', 'raw', false), null);
+      assertEqual(getProcessedPrice('red', 'preserves', false), null);
     });
 
     it('returns Dehydrator pricing correctly', () => {
       // Common dehydrated: (40*7.5 + 25)/5 = 325/5 = 65
-      const dec = getProcessingDecision('common', 0, 'dehydrator', false);
-      assertEqual(dec, { price: 65, actualProc: 'dehydrator' });
+      assertEqual(getProcessedPrice('common', 'dehydrator', false), 65);
     });
 
     it('returns Preserves Jar pricing correctly', () => {
       // Morel preserves: 150*2 + 50 = 350
-      const dec = getProcessingDecision('morel', 0, 'preserves', false);
-      assertEqual(dec, { price: 350, actualProc: 'preserves' });
+      assertEqual(getProcessedPrice('morel', 'preserves', false), 350);
     });
 
     it('applies Artisan Profession bonus', () => {
-      // Morel preserves + artisan: floor(350 * 1.4) = 489
-      const dec = getProcessingDecision('morel', 0, 'preserves', true);
-      assertEqual(dec, { price: 489, actualProc: 'preserves' });
+      // Morel preserves + artisan: floor(350 * 1.4) = 489 (due to JS float math)
+      assertEqual(getProcessedPrice('morel', 'preserves', true), 489);
+    });
+  });
+
+  describe('getProcessingDecision() - Final Output Decision', () => {
+    it('chooses processing if processed price is higher', () => {
+      // Common dehydrator = 65 vs raw = 40
+      const dec = getProcessingDecision('common', 0, 'dehydrator', false);
+      assertEqual(dec, { price: 65, actualProc: 'dehydrator' });
     });
 
     it('bypasses processing if raw sells for more', () => {
@@ -94,7 +103,7 @@ function runTests() {
     });
 
     it('never processes red mushrooms', () => {
-      // Red base=75. Dehydrated/Preserves normally don't accept it.
+      // Red basePrice=75. Dehydrated/Preserves normally don't accept it.
       // Our logic forces raw.
       const dec = getProcessingDecision('red', 0, 'preserves', false);
       assertEqual(dec, { price: 75, actualProc: 'raw' });

@@ -15,16 +15,18 @@ const QUALITY_MULTIPLIERS = [1, 1.25, 1.5, 2];
 const QUALITY_NAMES = ['Normal', 'Silver', 'Gold', 'Iridium'];
 const QUALITY_CLASSES = ['normal', 'silver', 'gold', 'iridium'];
 
-function getProcessingDecision(mushroomKey, quality, processingMethod, artisanProfession) {
+function getRawPrice(mushroomKey, quality) {
   const basePrice = MUSHROOM_DATA[mushroomKey].basePrice;
   const qualMult = QUALITY_MULTIPLIERS[quality];
-  const rawPrice = Math.floor(basePrice * qualMult);
+  return Math.floor(basePrice * qualMult);
+}
 
-  if (processingMethod === 'raw' || mushroomKey === 'red') {
-    return { price: rawPrice, actualProc: 'raw' };
-  }
+function getProcessedPrice(mushroomKey, processingMethod, artisanProfession) {
+  if (processingMethod === 'raw' || mushroomKey === 'red') return null;
 
+  const basePrice = MUSHROOM_DATA[mushroomKey].basePrice;
   let processedPrice = 0;
+
   if (processingMethod === 'preserves') {
     processedPrice = 2 * basePrice + 50;
   } else if (processingMethod === 'dehydrator') {
@@ -35,10 +37,17 @@ function getProcessingDecision(mushroomKey, quality, processingMethod, artisanPr
     processedPrice = Math.floor(processedPrice * 1.4);
   }
 
-  if (rawPrice > processedPrice) {
-    return { price: rawPrice, actualProc: 'raw' };
-  } else {
+  return processedPrice;
+}
+
+function getProcessingDecision(mushroomKey, quality, processingMethod, artisanProfession) {
+  const rawPrice = getRawPrice(mushroomKey, quality);
+  const processedPrice = getProcessedPrice(mushroomKey, processingMethod, artisanProfession);
+
+  if (processedPrice !== null && processedPrice > rawPrice) {
     return { price: processedPrice, actualProc: processingMethod };
+  } else {
+    return { price: rawPrice, actualProc: 'raw' };
   }
 }
 
@@ -103,8 +112,6 @@ function calculateMushroomLog(grid, logR, logC, gridW, gridH, config) {
     nearbyTreeCounts[t.treeType] = (nearbyTreeCounts[t.treeType] || 0) + 1;
   }
 
-  const matureTrees = trees; // All trees assumed mature
-
   // ── Quantity ──
   // floor(totalTrees / 2) * random(1 or 2), clamped to [1, 5]
   // Expected value: floor(totalTrees/2) * 1.5, clamped
@@ -126,7 +133,7 @@ function calculateMushroomLog(grid, logR, logC, gridW, gridH, config) {
   typeProbs.purple += basicCount * basicPurple;
 
   // Per-tree contributions
-  for (const tree of matureTrees) {
+  for (const tree of trees) {
     const treeInfo = TREE_TYPES[tree.treeType];
     if (!treeInfo) continue;
 
