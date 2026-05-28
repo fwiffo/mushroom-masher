@@ -485,7 +485,7 @@ function populateMathModal(results) {
   if (!results || !modalBody) return;
 
   let html = '';
-  
+
   if (state.farmLocation === 'desert') {
     html += `
     <h3>1. Harvest Frequency</h3>
