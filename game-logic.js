@@ -3,32 +3,32 @@
 // ═══════════════════════════════════════════════════════════════
 
 const MUSHROOM_DATA = {
-  common: { name: 'Common Mushroom', base: 40, color: 'common', emoji: 'assets/Common_Mushroom.png' },
-  red: { name: 'Red Mushroom', base: 75, color: 'red', emoji: 'assets/Red_Mushroom.png' },
-  morel: { name: 'Morel', base: 150, color: 'morel', emoji: 'assets/Morel.png' },
-  chanterelle: { name: 'Chanterelle', base: 160, color: 'chanterelle', emoji: 'assets/Chanterelle.png' },
-  purple: { name: 'Purple Mushroom', base: 250, color: 'purple', emoji: 'assets/Purple_Mushroom.png' },
+  common: { name: 'Common Mushroom', basePrice: 40, color: 'common', emoji: 'assets/Common_Mushroom.png' },
+  red: { name: 'Red Mushroom', basePrice: 75, color: 'red', emoji: 'assets/Red_Mushroom.png' },
+  morel: { name: 'Morel', basePrice: 150, color: 'morel', emoji: 'assets/Morel.png' },
+  chanterelle: { name: 'Chanterelle', basePrice: 160, color: 'chanterelle', emoji: 'assets/Chanterelle.png' },
+  purple: { name: 'Purple Mushroom', basePrice: 250, color: 'purple', emoji: 'assets/Purple_Mushroom.png' },
 };
 
 // Quality multipliers: base=1x, silver=1.25x, gold=1.5x, iridium=2x
 const QUALITY_MULTIPLIERS = [1, 1.25, 1.5, 2];
-const QUALITY_NAMES = ['Base', 'Silver', 'Gold', 'Iridium'];
-const QUALITY_CLASSES = ['base', 'silver', 'gold', 'iridium'];
+const QUALITY_NAMES = ['Normal', 'Silver', 'Gold', 'Iridium'];
+const QUALITY_CLASSES = ['normal', 'silver', 'gold', 'iridium'];
 
-function getProcessingDecision(mushroomKey, quality, processing, artisanProfession) {
-  const base = MUSHROOM_DATA[mushroomKey].base;
+function getProcessingDecision(mushroomKey, quality, processingMethod, artisanProfession) {
+  const basePrice = MUSHROOM_DATA[mushroomKey].basePrice;
   const qualMult = QUALITY_MULTIPLIERS[quality];
-  const rawPrice = Math.floor(base * qualMult);
+  const rawPrice = Math.floor(basePrice * qualMult);
 
-  if (processing === 'raw' || mushroomKey === 'red') {
+  if (processingMethod === 'raw' || mushroomKey === 'red') {
     return { price: rawPrice, actualProc: 'raw' };
   }
 
   let processedPrice = 0;
-  if (processing === 'preserves') {
-    processedPrice = 2 * base + 50;
-  } else if (processing === 'dehydrator') {
-    processedPrice = (base * 7.5 + 25) / 5;
+  if (processingMethod === 'preserves') {
+    processedPrice = 2 * basePrice + 50;
+  } else if (processingMethod === 'dehydrator') {
+    processedPrice = (basePrice * 7.5 + 25) / 5;
   }
 
   if (artisanProfession) {
@@ -38,23 +38,20 @@ function getProcessingDecision(mushroomKey, quality, processing, artisanProfessi
   if (rawPrice > processedPrice) {
     return { price: rawPrice, actualProc: 'raw' };
   } else {
-    return { price: processedPrice, actualProc: processing };
+    return { price: processedPrice, actualProc: processingMethod };
   }
-}
-
-function getProcessedPrice(mushroomKey, quality, processing) {
-  return getProcessingDecision(mushroomKey, quality, processing).price;
 }
 
 // Tree types and their mushroom contributions
 const TREE_TYPES = {
-  oak: { name: 'Oak Tree', emoji: 'assets/Acorn.png', mushroomType: 'morel', mushroomChance: 1.0, tapper: { name: 'Oak Resin', price: 150, normalDays: 7, heavyDays: 3, winter: true } },
-  maple: { name: 'Maple Tree', emoji: 'assets/Maple_Seed.png', mushroomType: 'red', mushroomChance: 0.9, altType: 'purple', altChance: 0.1, tapper: { name: 'Maple Syrup', price: 200, normalDays: 9, heavyDays: 4, winter: true } },
-  pine: { name: 'Pine Tree', emoji: 'assets/Pine_Cone.png', mushroomType: 'chanterelle', mushroomChance: 1.0, tapper: { name: 'Pine Tar', price: 100, normalDays: 5, heavyDays: 2, winter: true } },
-  tree_mystic: { name: 'Mystic Tree', emoji: 'assets/Mystic_Tree_Seed.png', mushroomType: 'purple', mushroomChance: 1.0, noMoss: true, tapper: { name: 'Mystic Syrup', price: 1000, normalDays: 7, heavyDays: 3, winter: true } },
-  tree_mahogany: { name: 'Mahogany Tree', emoji: 'assets/Mahogany_Seed.png', mushroomType: null, tapper: { name: 'Sap', price: 2, normalDays: 1, heavyDays: 1, winter: true } },
-  tree_mushroom: { name: 'Mushroom Tree', emoji: 'assets/Mushroom_Tree.png', mushroomType: null, noMoss: true, tapper: { name: 'Mushrooms (Mixed)', price: 65, normalDays: 2.15, heavyDays: 2.15, winter: false } },
-  tree_green_rain: { name: 'Green Rain Tree (Type 3)', emoji: 'assets/Green_Rain_Tree_3.png', mushroomType: null, noMoss: true, tapper: { name: 'Fiddlehead Fern', price: 90, normalDays: 1, heavyDays: 1, winter: false } },
+  oak: { name: 'Oak Tree', emoji: 'assets/Acorn.png', mushroomType: 'morel', tapper: { name: 'Oak Resin', price: 150, tapperDays: 7, heavyTapperDays: 3, winter: true } },
+  // Note: Maple trees have a hardcoded 90% Red / 10% Purple split in calculateMushroomLog()
+  maple: { name: 'Maple Tree', emoji: 'assets/Maple_Seed.png', mushroomType: 'red', tapper: { name: 'Maple Syrup', price: 200, tapperDays: 9, heavyTapperDays: 4, winter: true } },
+  pine: { name: 'Pine Tree', emoji: 'assets/Pine_Cone.png', mushroomType: 'chanterelle', tapper: { name: 'Pine Tar', price: 100, tapperDays: 5, heavyTapperDays: 2, winter: true } },
+  mystic: { name: 'Mystic Tree', emoji: 'assets/Mystic_Tree_Seed.png', mushroomType: 'purple', noMoss: true, tapper: { name: 'Mystic Syrup', price: 1000, tapperDays: 7, heavyTapperDays: 3, winter: true } },
+  mahogany: { name: 'Mahogany Tree', emoji: 'assets/Mahogany_Seed.png', mushroomType: null, tapper: { name: 'Sap', price: 2, tapperDays: 1, heavyTapperDays: 1, winter: true } },
+  mushroom: { name: 'Mushroom Tree', emoji: 'assets/Mushroom_Tree.png', mushroomType: null, noMoss: true, tapper: { name: 'Mushrooms (Mixed)', price: 65, tapperDays: 2.15, heavyTapperDays: 2.15, winter: false } },
+  green_rain: { name: 'Green Rain Tree (Type 3)', emoji: 'assets/Green_Rain_Tree_3.png', mushroomType: null, noMoss: true, tapper: { name: 'Fiddlehead Fern', price: 90, tapperDays: 1, heavyTapperDays: 1, winter: false } },
 };
 
 const CELL_EMPTY = 0;
@@ -74,7 +71,7 @@ function getNearbyCells(grid, logR, logC, gridW, gridH, config) {
       let nr = logR + dr;
       let nc = logC + dc;
 
-      if (config.infiniteCalc) {
+      if (config.wrapAround) {
         if (config.tileableMode) {
           // Wrap using tile dimensions to simulate infinite pattern
           nr = ((nr % th) + th) % th;
@@ -183,7 +180,7 @@ function calculateFarm(config) {
   const w = config.gridWidth;
   const h = config.gridHeight;
   const tileable = config.tileableMode;
-  const infiniteCalc = config.infiniteCalc;
+  const wrapAround = config.wrapAround;
 
   // Find all mushroom logs and calculate area stats
   const logs = [];
@@ -282,32 +279,33 @@ function calculateFarm(config) {
       const cell = grid[r][c];
       if (cell.type === CELL_TREE && cell.tapper) {
         const treeInfo = TREE_TYPES[cell.treeType];
-        if (!treeInfo || !treeInfo.tapper) continue;
-
-        const tapInfo = treeInfo.tapper;
-        const daysToProduce = cell.tapper === 'heavy' ? tapInfo.heavyDays : tapInfo.normalDays;
-        const activeDaysPerYear = tapInfo.winter ? 112 : 84;
+        const tapperData = treeInfo.tapper;
+        if (!tapperData) continue;
+        const isHeavy = cell.tapper === 'heavy_tapper';
+        const tapperName = isHeavy ? 'Heavy Tapper' : 'Tapper';
+        const tapperDays = isHeavy ? tapperData.heavyTapperDays : tapperData.tapperDays;
+        const activeDaysPerYear = tapperData.winter ? 112 : 84;
 
         let harvestsPerYear = 0;
         if (config.syncTappers) {
-          const numMushroomCyclesForTapper = Math.ceil(daysToProduce / avgCycleDays);
+          const numMushroomCyclesForTapper = Math.ceil(tapperDays / avgCycleDays);
           const mushroomRunsInActivePeriod = Math.floor(activeDaysPerYear / avgCycleDays);
           harvestsPerYear = Math.floor(mushroomRunsInActivePeriod / numMushroomCyclesForTapper);
         } else {
-          harvestsPerYear = Math.floor(activeDaysPerYear / daysToProduce);
+          harvestsPerYear = Math.floor(activeDaysPerYear / tapperDays);
         }
 
-        let price = tapInfo.price;
-        if (config.tapperProfession && ['Maple Syrup', 'Oak Resin', 'Pine Tar', 'Mystic Syrup'].includes(tapInfo.name)) {
+        let price = tapperData.price;
+        if (config.tapperProfession && ['Maple Syrup', 'Oak Resin', 'Pine Tar', 'Mystic Syrup'].includes(tapperData.name)) {
           price = Math.floor(price * 1.25);
         }
 
         const gold = harvestsPerYear * price;
         totalTapperGoldPerYear += gold;
 
-        const breakdownKey = `${treeInfo.name} (${cell.tapper === 'heavy' ? 'Heavy' : 'Normal'} Tapper)`;
+        const breakdownKey = `${treeInfo.name} (${cell.tapper === 'heavy_tapper' ? 'Heavy' : 'Normal'} Tapper)`;
         if (!tapperBreakdown[breakdownKey]) {
-          tapperBreakdown[breakdownKey] = { tapperCount: 0, productName: tapInfo.name, totalHarvestsPerYear: 0, totalGold: 0 };
+          tapperBreakdown[breakdownKey] = { tapperCount: 0, productName: tapperData.name, totalHarvestsPerYear: 0, totalGold: 0 };
         }
         tapperBreakdown[breakdownKey].tapperCount++;
         tapperBreakdown[breakdownKey].totalHarvestsPerYear += harvestsPerYear;

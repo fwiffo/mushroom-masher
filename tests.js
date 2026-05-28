@@ -103,23 +103,23 @@ function runTests() {
 
   describe('getNearbyCells() - Proximity Search', () => {
     it('extracts exactly 48 cells in a 7x7 grid without center cell', () => {
-      const mockGrid = Array.from({length: 10}, () => Array(10).fill({type: CELL_EMPTY}));
-      const config = { infiniteCalc: false, tileableMode: false };
+      const mockGrid = Array.from({ length: 10 }, () => Array(10).fill({ type: CELL_EMPTY }));
+      const config = { wrapAround: false, tileableMode: false };
       const nearby = getNearbyCells(mockGrid, 5, 5, 10, 10, config);
       assertEqual(nearby.length, 48); // 7x7 - 1 = 48
     });
 
     it('clamps to boundaries when non-infinite', () => {
-      const mockGrid = Array.from({length: 10}, () => Array(10).fill({type: CELL_EMPTY}));
-      const config = { infiniteCalc: false, tileableMode: false };
+      const mockGrid = Array.from({ length: 10 }, () => Array(10).fill({ type: CELL_EMPTY }));
+      const config = { wrapAround: false, tileableMode: false };
       const nearby = getNearbyCells(mockGrid, 0, 0, 10, 10, config);
       assertEqual(nearby.length, 15);
     });
 
     it('wraps infinitely when tileable', () => {
-      const mockGrid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
+      const mockGrid = Array.from({ length: 7 }, () => Array(7).fill({ type: CELL_EMPTY }));
       // At corner 0,0 with tileable mode, it should find exactly 48 cells (since a 7x7 grid tileably wraps perfectly)
-      const config = { infiniteCalc: true, tileableMode: true, tileWidth: 7, tileHeight: 7 };
+      const config = { wrapAround: true, tileableMode: true, tileWidth: 7, tileHeight: 7 };
       const nearby = getNearbyCells(mockGrid, 0, 0, 7, 7, config);
       assertEqual(nearby.length, 48);
     });
@@ -127,8 +127,8 @@ function runTests() {
 
   describe('calculateMushroomLog() - Probability & Yield Math', () => {
     it('returns expected zero state when no trees nearby', () => {
-      const mockGrid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
-      const config = { infiniteCalc: false, tileableMode: false };
+      const mockGrid = Array.from({ length: 7 }, () => Array(7).fill({ type: CELL_EMPTY }));
+      const config = { wrapAround: false, tileableMode: false };
       const res = calculateMushroomLog(mockGrid, 3, 3, 7, 7, config);
       assertEqual(res.totalTrees, 0);
       assertEqual(res.expectedQty, 1); // math.max(1, 0*1.5) -> clamped low 1, high 1, avg 1
@@ -136,14 +136,14 @@ function runTests() {
     });
 
     it('calculates upgrade chance perfectly', () => {
-      const mockGrid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
+      const mockGrid = Array.from({ length: 7 }, () => Array(7).fill({ type: CELL_EMPTY }));
       // Put 5 trees around it, 2 of them mossy
       mockGrid[2][3] = { type: CELL_TREE, treeType: 'oak', hasMoss: true };
       mockGrid[2][4] = { type: CELL_TREE, treeType: 'oak', hasMoss: true };
       mockGrid[3][2] = { type: CELL_TREE, treeType: 'pine', hasMoss: false };
       mockGrid[4][3] = { type: CELL_TREE, treeType: 'maple', hasMoss: false };
       mockGrid[4][4] = { type: CELL_TREE, treeType: 'mystic', hasMoss: false };
-      const config = { infiniteCalc: false, tileableMode: false };
+      const config = { wrapAround: false, tileableMode: false };
       const res = calculateMushroomLog(mockGrid, 3, 3, 7, 7, config);
 
       assertEqual(res.totalTrees, 5);
@@ -157,26 +157,26 @@ function runTests() {
     });
 
     it('computes correct quantity based on trees', () => {
-      const mockGrid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
+      const mockGrid = Array.from({ length: 7 }, () => Array(7).fill({ type: CELL_EMPTY }));
       // 8 trees -> halfTrees = 4.
       // qtyLow = min(5, 4*1) = 4
       // qtyHigh = min(5, 4*2) = 5
       // expected = 4.5
       // Place 8 distinct trees around the log at (3,3)
-      const treeCoords = [ [1,1], [1,2], [1,3], [1,4], [2,1], [2,2], [2,3], [2,4] ];
+      const treeCoords = [[1, 1], [1, 2], [1, 3], [1, 4], [2, 1], [2, 2], [2, 3], [2, 4]];
       for (const [r, c] of treeCoords) {
         mockGrid[r][c] = { type: CELL_TREE, treeType: 'oak', hasMoss: false };
       }
-      const config = { infiniteCalc: false, tileableMode: false };
+      const config = { wrapAround: false, tileableMode: false };
       const res = calculateMushroomLog(mockGrid, 3, 3, 7, 7, config);
       assertEqual(res.expectedQty, 4.5);
     });
 
     it('correctly weighs mushroom type distributions', () => {
-      const mockGrid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
+      const mockGrid = Array.from({ length: 7 }, () => Array(7).fill({ type: CELL_EMPTY }));
       // 1 Pine Tree (chanterelle)
       mockGrid[2][3] = { type: CELL_TREE, treeType: 'pine', hasMoss: false };
-      const config = { infiniteCalc: false, tileableMode: false };
+      const config = { wrapAround: false, tileableMode: false };
       const res = calculateMushroomLog(mockGrid, 3, 3, 7, 7, config);
       // Basic Count = max(1, floor(1 * 0.75)) = 1
       // Total entries = 1 basic + 1 pine = 2
@@ -194,7 +194,7 @@ function runTests() {
       // Reset state for clear testing
       state.gridWidth = 7;
       state.gridHeight = 7;
-      state.grid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
+      state.grid = Array.from({ length: 7 }, () => Array(7).fill({ type: CELL_EMPTY }));
 
       // Place 1 tree and 2 logs
       state.grid[3][3] = { type: CELL_TREE, treeType: 'oak', hasMoss: false }; // Oak = Morel
@@ -206,7 +206,7 @@ function runTests() {
         gridWidth: 7,
         gridHeight: 7,
         tileableMode: false,
-        infiniteCalc: false,
+        wrapAround: false,
         farmLocation: 'main',
         useRainTotems: false,
         artisanProfession: false,
@@ -226,7 +226,7 @@ function runTests() {
 
     it('calculates average cycle days based on rain totems', () => {
       const config = {
-        grid: Array.from({length: 1}, () => Array(1).fill({type: CELL_EMPTY})),
+        grid: Array.from({ length: 1 }, () => Array(1).fill({ type: CELL_EMPTY })),
         gridWidth: 1, gridHeight: 1,
         farmLocation: 'main',
         useRainTotems: false
@@ -242,18 +242,18 @@ function runTests() {
     });
 
     it('computes correct dehydrators and preserves jars required', () => {
-      state.grid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
+      state.grid = Array.from({ length: 7 }, () => Array(7).fill({ type: CELL_EMPTY }));
 
       // Place 10 logs
-      for(let i=0; i<10; i++) {
+      for (let i = 0; i < 10; i++) {
         const r = 2 + Math.floor(i / 5);
         const c = i % 5;
         state.grid[r][c] = { type: CELL_MUSHLOG, treeType: null, hasMoss: false };
       }
 
       // Place 10 oak trees around them (in the intersection area visible to all 10 logs)
-      const treeCoords = [ [0,1],[0,2],[0,3], [1,1],[1,2],[1,3], [4,1],[4,2],[5,1],[5,2] ];
-      for(const [r,c] of treeCoords) {
+      const treeCoords = [[0, 1], [0, 2], [0, 3], [1, 1], [1, 2], [1, 3], [4, 1], [4, 2], [5, 1], [5, 2]];
+      for (const [r, c] of treeCoords) {
         state.grid[r][c] = { type: CELL_TREE, treeType: 'oak', hasMoss: false };
       }
 
@@ -262,7 +262,7 @@ function runTests() {
         gridWidth: 7,
         gridHeight: 7,
         tileableMode: false,
-        infiniteCalc: false,
+        wrapAround: false,
         farmLocation: 'main',
         useRainTotems: true,
         artisanProfession: false,
@@ -294,12 +294,12 @@ function runTests() {
 
   describe('calculateFarm() - Tappers', () => {
     it('calculates tapper yields and total gold', () => {
-      const grid = Array.from({length: 1}, () => Array(2).fill({type: CELL_EMPTY}));
-      grid[0][0] = { type: CELL_TREE, treeType: 'oak', tapper: 'normal' };
-      grid[0][1] = { type: CELL_TREE, treeType: 'maple', tapper: 'heavy' };
+      const grid = Array.from({ length: 1 }, () => Array(2).fill({ type: CELL_EMPTY }));
+      grid[0][0] = { type: CELL_TREE, treeType: 'oak', tapper: 'tapper' };
+      grid[0][1] = { type: CELL_TREE, treeType: 'maple', tapper: 'heavy_tapper' };
       const config = {
         grid: grid, gridWidth: 2, gridHeight: 1, tileableMode: false,
-        infiniteCalc: false, farmLocation: 'main', useRainTotems: false,
+        wrapAround: false, farmLocation: 'main', useRainTotems: false,
         tapperProfession: false, syncTappers: false
       };
 
@@ -315,11 +315,11 @@ function runTests() {
     });
 
     it('calculates sync tappers logic correctly', () => {
-      const grid = Array.from({length: 1}, () => Array(1).fill({type: CELL_EMPTY}));
-      grid[0][0] = { type: CELL_TREE, treeType: 'oak', tapper: 'normal' };
+      const grid = Array.from({ length: 1 }, () => Array(1).fill({ type: CELL_EMPTY }));
+      grid[0][0] = { type: CELL_TREE, treeType: 'oak', tapper: 'tapper' };
       const config = {
         grid: grid, gridWidth: 1, gridHeight: 1, tileableMode: false,
-        infiniteCalc: false, farmLocation: 'main', useRainTotems: false,
+        wrapAround: false, farmLocation: 'main', useRainTotems: false,
         tapperProfession: false, syncTappers: true
       };
       const res = calculateFarm(config);
@@ -332,11 +332,11 @@ function runTests() {
     });
 
     it('applies tapper profession correctly', () => {
-      const grid = Array.from({length: 1}, () => Array(1).fill({type: CELL_EMPTY}));
-      grid[0][0] = { type: CELL_TREE, treeType: 'oak', tapper: 'normal' };
+      const grid = Array.from({ length: 1 }, () => Array(1).fill({ type: CELL_EMPTY }));
+      grid[0][0] = { type: CELL_TREE, treeType: 'oak', tapper: 'tapper' };
       const config = {
         grid: grid, gridWidth: 1, gridHeight: 1, tileableMode: false,
-        infiniteCalc: false, farmLocation: 'main', useRainTotems: false,
+        wrapAround: false, farmLocation: 'main', useRainTotems: false,
         tapperProfession: true, syncTappers: false
       };
       const res = calculateFarm(config);
@@ -386,13 +386,13 @@ function runTests() {
       assertEqual(expanded[3][3].type, CELL_EMPTY); // tiled empty
     });
 
-    it('syncTileableGridData() returns coordinates of updated tiles', () => {
+    it('mirrorCellToTileableGridData() returns coordinates of updated tiles', () => {
       const grid = createEmptyGrid(4, 4);
       grid[0][0].type = CELL_MUSHLOG; // Change the source cell
 
       // We modified (0,0) in a 4x4 grid with tile dimensions 2x2.
       // This should sync to (0,2), (2,0), (2,2)
-      const modified = syncTileableGridData(grid, 4, 4, 0, 0, 2, 2);
+      const modified = mirrorCellToTileableGridData(grid, 4, 4, 0, 0, 2, 2);
 
       assertEqual(modified.length, 3);
       assertEqual(grid[0][2].type, CELL_MUSHLOG);

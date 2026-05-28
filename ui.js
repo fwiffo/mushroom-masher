@@ -13,7 +13,7 @@ const gridHeightInput = $('#grid-height');
 const tileWidthInput = $('#tile-width');
 const tileHeightInput = $('#tile-height');
 const tileableToggle = $('#tileable-mode');
-const infiniteCalcToggle = $('#infinite-calc');
+const wrapAroundToggle = $('#infinite-calc');
 const tileSizeSettings = $('#tile-size-settings');
 const farmLocationSelect = $('#farm-location');
 const rainTotemToggle = $('#rain-totem-mode');
@@ -89,7 +89,7 @@ function renderCellContent(cellEl, cellData) {
 
     if (cellData.tapper) {
       const tapImg = document.createElement('img');
-      tapImg.src = cellData.tapper === 'heavy' ? 'assets/Heavy_Tapper.png' : 'assets/Tapper.png';
+      tapImg.src = cellData.tapper === 'heavy_tapper' ? 'assets/Heavy_Tapper.png' : 'assets/Tapper.png';
       tapImg.className = 'cell-tapper';
       content.appendChild(tapImg);
     }

@@ -8,7 +8,7 @@ function syncUIWithState() {
   if (gridWidthInput) gridWidthInput.value = state.gridWidth;
   if (gridHeightInput) gridHeightInput.value = state.gridHeight;
   if (tileableToggle) tileableToggle.checked = state.tileableMode;
-  if (infiniteCalcToggle) infiniteCalcToggle.checked = state.infiniteCalc;
+  if (wrapAroundToggle) wrapAroundToggle.checked = state.wrapAround;
   if (tileSizeSettings) tileSizeSettings.style.display = state.tileableMode ? 'block' : 'none';
   if (tileWidthInput) tileWidthInput.value = state.tileWidth;
   if (tileHeightInput) tileHeightInput.value = state.tileHeight;
@@ -79,7 +79,7 @@ function handleCellClick(r, c) {
     if (cell.type !== CELL_EMPTY) {
       state.grid[r][c] = { type: CELL_EMPTY, treeType: null, hasMoss: false };
       updateSingleCell(r, c);
-      syncTileableGrid(r, c);
+      mirrorCellToTileableGrid(r, c);
       saveStateData();
       updateCalculation();
     }
@@ -90,7 +90,7 @@ function handleCellClick(r, c) {
     if (cell.type === CELL_MUSHLOG) return; // already placed
     state.grid[r][c] = { type: CELL_MUSHLOG, treeType: null, hasMoss: false };
     updateSingleCell(r, c);
-    syncTileableGrid(r, c);
+    mirrorCellToTileableGrid(r, c);
     saveStateData();
     updateCalculation();
     return;
@@ -101,7 +101,7 @@ function handleCellClick(r, c) {
     if (cell.type === CELL_TREE && !TREE_TYPES[cell.treeType].noMoss) {
       state.grid[r][c].hasMoss = !state.grid[r][c].hasMoss;
       updateSingleCell(r, c);
-      syncTileableGrid(r, c);
+      mirrorCellToTileableGrid(r, c);
       saveStateData();
       updateCalculation();
     }
@@ -114,14 +114,13 @@ function handleCellClick(r, c) {
       const treeInfo = TREE_TYPES[cell.treeType];
       if (!treeInfo.tapper) return; // Cannot be tapped
 
-      const tType = tool === 'tapper' ? 'normal' : 'heavy';
-      if (cell.tapper === tType) {
+      if (cell.tapper === tool) {
         state.grid[r][c].tapper = null;
       } else {
-        state.grid[r][c].tapper = tType;
+        state.grid[r][c].tapper = tool;
       }
       updateSingleCell(r, c);
-      syncTileableGrid(r, c);
+      mirrorCellToTileableGrid(r, c);
       saveStateData();
       updateCalculation();
     }
@@ -137,18 +136,18 @@ function handleCellClick(r, c) {
       state.grid[r][c] = { type: CELL_TREE, treeType: tool, hasMoss: false, tapper: null };
     }
     updateSingleCell(r, c);
-    syncTileableGrid(r, c);
+    mirrorCellToTileableGrid(r, c);
     saveStateData();
     updateCalculation();
   }
 }
 
-function syncTileableGrid(r, c) {
+function mirrorCellToTileableGrid(r, c) {
   if (!state.tileableMode) return;
   const tw = parseInt(tileWidthInput.value) || 7;
   const th = parseInt(tileHeightInput.value) || 7;
 
-  const modified = syncTileableGridData(state.grid, state.gridWidth, state.gridHeight, r, c, tw, th);
+  const modified = mirrorCellToTileableGridData(state.grid, state.gridWidth, state.gridHeight, r, c, tw, th);
   for (const coord of modified) {
     updateSingleCell(coord.r, coord.c);
   }
@@ -223,7 +222,7 @@ function setupEventListeners() {
         gridHeight: state.gridHeight,
         grid: state.grid,
         tileableMode: state.tileableMode,
-        infiniteCalc: state.infiniteCalc,
+        wrapAround: state.wrapAround,
         tileWidth: state.tileWidth,
         tileHeight: state.tileHeight,
         farmLocation: state.farmLocation,
@@ -287,9 +286,9 @@ function setupEventListeners() {
     });
   }
 
-  if (infiniteCalcToggle) {
-    infiniteCalcToggle.addEventListener('change', () => {
-      state.infiniteCalc = infiniteCalcToggle.checked;
+  if (wrapAroundToggle) {
+    wrapAroundToggle.addEventListener('change', () => {
+      state.wrapAround = wrapAroundToggle.checked;
       saveStateData();
       updateCalculation();
     });

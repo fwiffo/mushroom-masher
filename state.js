@@ -8,7 +8,7 @@ const state = {
   grid: [],            // 2D array of { type, treeType, hasMoss, tapper }
   selectedTool: null,
   tileableMode: false,
-  infiniteCalc: false,
+  wrapAround: false,
   tileWidth: 7,
   tileHeight: 7,
   farmLocation: 'main',
@@ -49,7 +49,7 @@ function saveStateData() {
     gridHeight: state.gridHeight,
     grid: state.grid,
     tileableMode: state.tileableMode,
-    infiniteCalc: state.infiniteCalc,
+    wrapAround: state.wrapAround,
     tileWidth: state.tileWidth,
     tileHeight: state.tileHeight,
     farmLocation: state.farmLocation,
@@ -74,17 +74,22 @@ function loadStateData(dataObj) {
       if (data.gridHeight) state.gridHeight = data.gridHeight;
       if (data.grid) {
         state.grid = data.grid;
-        // Migration for older states
+        // Migration for older states (removing 'tree_' prefix)
         for (let r = 0; r < state.grid.length; r++) {
           for (let c = 0; c < state.grid[r].length; c++) {
-            if (state.grid[r][c] && state.grid[r][c].treeType === 'mystic') {
-              state.grid[r][c].treeType = 'tree_mystic';
+            if (state.grid[r][c] && typeof state.grid[r][c].treeType === 'string' && state.grid[r][c].treeType.startsWith('tree_')) {
+              state.grid[r][c].treeType = state.grid[r][c].treeType.replace('tree_', '');
+            }
+            if (state.grid[r][c] && state.grid[r][c].tapper === 'normal') {
+              state.grid[r][c].tapper = 'tapper';
+            } else if (state.grid[r][c] && state.grid[r][c].tapper === 'heavy') {
+              state.grid[r][c].tapper = 'heavy_tapper';
             }
           }
         }
       }
       if (data.tileableMode !== undefined) state.tileableMode = data.tileableMode;
-      if (data.infiniteCalc !== undefined) state.infiniteCalc = data.infiniteCalc;
+      if (data.wrapAround !== undefined) state.wrapAround = data.wrapAround;
       if (data.tileWidth) state.tileWidth = data.tileWidth;
       if (data.tileHeight) state.tileHeight = data.tileHeight;
       if (data.farmLocation) state.farmLocation = data.farmLocation;
@@ -136,7 +141,7 @@ function resizeGridData(oldGrid, newW, newH, tileableMode, tileW, tileH) {
   return newGrid;
 }
 
-function syncTileableGridData(grid, gridW, gridH, r, c, tileW, tileH) {
+function mirrorCellToTileableGridData(grid, gridW, gridH, r, c, tileW, tileH) {
   const modifiedCoords = [];
   const localR = r % tileH;
   const localC = c % tileW;
