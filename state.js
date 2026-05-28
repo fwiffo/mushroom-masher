@@ -3,14 +3,14 @@
 // ═══════════════════════════════════════════════════════════════
 
 const state = {
-  gridWidth: 15,
-  gridHeight: 15,
+  gridWidth: 12,
+  gridHeight: 12,
   grid: [],            // 2D array of { type, treeType, hasMoss, tapper }
   selectedTool: null,
   tileableMode: false,
   wrapAround: false,
-  tileWidth: 7,
-  tileHeight: 7,
+  tileWidth: 3,
+  tileHeight: 4,
   farmLocation: 'main',
   useRainTotems: false,
   artisanProfession: false,

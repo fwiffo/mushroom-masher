@@ -42,17 +42,17 @@ function syncUIWithState() {
 }
 
 function initGrid() {
-  state.gridWidth = parseInt(gridWidthInput.value) || 15;
-  state.gridHeight = parseInt(gridHeightInput.value) || 15;
+  state.gridWidth = parseInt(gridWidthInput.value) || 12;
+  state.gridHeight = parseInt(gridHeightInput.value) || 12;
   state.grid = createEmptyGrid(state.gridWidth, state.gridHeight);
   renderGrid();
 }
 
 function resizeGrid() {
-  const newW = parseInt(gridWidthInput.value) || 15;
-  const newH = parseInt(gridHeightInput.value) || 15;
-  const tw = parseInt(tileWidthInput.value) || 7;
-  const th = parseInt(tileHeightInput.value) || 7;
+  const newW = parseInt(gridWidthInput.value) || 12;
+  const newH = parseInt(gridHeightInput.value) || 12;
+  const tw = parseInt(tileWidthInput.value) || 3;
+  const th = parseInt(tileHeightInput.value) || 4;
 
   state.grid = resizeGridData(state.grid, newW, newH, state.tileableMode, tw, th);
   state.gridWidth = newW;
@@ -142,8 +142,8 @@ function handleCellClick(r, c) {
 
 function mirrorCellToTileableGrid(r, c) {
   if (!state.tileableMode) return;
-  const tw = parseInt(tileWidthInput.value) || 7;
-  const th = parseInt(tileHeightInput.value) || 7;
+  const tw = parseInt(tileWidthInput.value) || 3;
+  const th = parseInt(tileHeightInput.value) || 4;
 
   const modified = mirrorCellToTileableGridData(state.grid, state.gridWidth, state.gridHeight, r, c, tw, th);
   for (const coord of modified) {
@@ -153,8 +153,8 @@ function mirrorCellToTileableGrid(r, c) {
 
 function retileGrid() {
   if (!state.tileableMode) return;
-  const tw = parseInt(tileWidthInput.value) || 7;
-  const th = parseInt(tileHeightInput.value) || 7;
+  const tw = parseInt(tileWidthInput.value) || 3;
+  const th = parseInt(tileHeightInput.value) || 4;
   retileGridData(state.grid, state.gridWidth, state.gridHeight, tw, th);
 }
 
@@ -294,7 +294,7 @@ function setupEventListeners() {
 
   if (tileWidthInput) {
     tileWidthInput.addEventListener('change', () => {
-      state.tileWidth = parseInt(tileWidthInput.value) || 7;
+      state.tileWidth = parseInt(tileWidthInput.value) || 3;
       retileGrid();
       renderGrid();
       saveStateData();
@@ -304,7 +304,7 @@ function setupEventListeners() {
 
   if (tileHeightInput) {
     tileHeightInput.addEventListener('change', () => {
-      state.tileHeight = parseInt(tileHeightInput.value) || 7;
+      state.tileHeight = parseInt(tileHeightInput.value) || 4;
       retileGrid();
       renderGrid();
       saveStateData();
