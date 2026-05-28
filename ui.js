@@ -217,7 +217,7 @@ function renderResults(results) {
 function renderEmptyState() {
   return `
     <div class="empty-state">
-      <img src="assets/Mushroom_Log.png" class="icon" alt="Log" style="width: 48px; height: 48px; image-rendering: pixelated;">
+      <img src="assets/Mushroom_Log.png" class="icon" alt="Log" style="width: 48px; height: 48px; object-fit: contain; image-rendering: pixelated;">
       <p>No mushroom logs or tappers found. Place some logs near trees or tappers on trees to see production stats.</p>
     </div>`;
 }
@@ -238,8 +238,8 @@ function renderCombinedGold(results, hasTappers) {
 function renderMushroomLogsSummary(results, gridArea) {
   const goldPerDay = results.totalGoldPerYear / DAYS_PER_YEAR;
   return `
-    <div class="section-header">
-      🍄 MUSHROOM LOGS
+    <div class="section-header" style="display:flex; align-items:center;">
+      <img src="assets/Mushroom_Log.png" class="header-icon" style="margin-right:8px;"> MUSHROOM LOGS
     </div>
     <div class="gold-summary">
       <div class="big-number">${formatGold(results.totalGoldPerHarvest)}</div>
@@ -268,7 +268,7 @@ function renderFarmOverview(results, gridArea) {
 
   let html = `
     <div class="results-section" style="margin-top:14px">
-      <h3>📋 FARM OVERVIEW</h3>
+      <h3 style="display:flex; align-items:center;"><img src="assets/Magnifying_Glass.png" class="header-icon"> FARM OVERVIEW</h3>
       <div class="stat-row">
         <span class="stat-label">Empty Space</span>
         <span class="stat-value">${results.emptyCount} (${emptyPct}%)</span>
@@ -334,7 +334,7 @@ function renderMushroomMix(results, gridArea) {
 
   let html = `
     <div class="results-section">
-      <h3>🍄 MUSHROOM MIX (AVG/HARVEST)</h3>
+      <h3 style="display:flex; align-items:center;"><img src="assets/Red_Mushroom.png" class="header-icon"> MUSHROOM MIX (AVG/HARVEST)</h3>
   `;
 
   for (const [mtype, data] of Object.entries(MUSHROOM_DATA)) {
@@ -392,7 +392,7 @@ function renderProcessingRequirements(results) {
 
   return `
     <div class="results-section">
-      <h3>🛠️ REQUIRED PROCESSING</h3>
+      <h3 style="display:flex; align-items:center;"><img src="assets/Dehydrator.png" class="header-icon"> REQUIRED PROCESSING</h3>
       <div class="stat-row">
         <span class="stat-label">Dehydrators</span>
         <span class="stat-value" style="color:var(--text-accent);">${results.dehydratorsRequired}</span>
@@ -412,7 +412,7 @@ function renderPerLogDetails(results) {
   let html = `
     <details class="results-section" style="margin-top:14px; cursor:pointer;">
       <summary>
-        <span>📍 PER-LOG DETAILS</span>
+        <span>PER-LOG DETAILS</span>
       </summary>
       <div style="margin-top:16px; cursor:default; display:flex; flex-direction:column; gap:8px;">
   `;
@@ -452,9 +452,9 @@ function renderPerLogDetails(results) {
             <span class="stat-label">Nearby trees: ${log.totalTrees} (${log.mossyCount} Mossy)</span>
             <div style="padding-left: 10px; width: 100%; margin-top: 4px;">
               ${Object.entries(log.nearbyTreeCounts || {}).map(([tType, tCount]) => {
-                const tInfo = TREE_TYPES[tType];
-                if (!tInfo) return '';
-                return `
+      const tInfo = TREE_TYPES[tType];
+      if (!tInfo) return '';
+      return `
                   <div class="stat-row mini">
                     <span class="stat-label">
                       <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
@@ -462,7 +462,7 @@ function renderPerLogDetails(results) {
                     <span class="stat-value">${tCount}</span>
                   </div>
                 `;
-              }).join('')}
+    }).join('')}
             </div>
           </div>
           <div class="stat-row">
@@ -504,8 +504,8 @@ function renderPerLogDetails(results) {
 
 function renderTappersSummary(results) {
   let html = `
-    <div class="section-header">
-      🍯 TAPPERS
+    <div class="section-header" style="display:flex; align-items:center;">
+      <img src="assets/Tapper.png" class="header-icon" style="margin-right:8px;"> TAPPERS
     </div>
     <div class="results-section">
   `;
