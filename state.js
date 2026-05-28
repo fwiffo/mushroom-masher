@@ -3,14 +3,14 @@
 // ═══════════════════════════════════════════════════════════════
 
 const state = {
-  gridWidth: 12,
-  gridHeight: 12,
+  gridWidth: 15,
+  gridHeight: 15,
   grid: [],            // 2D array of { type, treeType, hasMoss, tapper }
   selectedTool: null,
   tileableMode: false,
   wrapAround: false,
-  tileWidth: 3,
-  tileHeight: 4,
+  tileWidth: 5,
+  tileHeight: 5,
   farmLocation: 'main',
   useRainTotems: false,
   artisanProfession: false,
@@ -43,8 +43,8 @@ function savePresetsData(presets) {
   localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
 }
 
-function saveStateData() {
-  const data = {
+function getStateData() {
+  return {
     gridWidth: state.gridWidth,
     gridHeight: state.gridHeight,
     grid: state.grid,
@@ -59,7 +59,10 @@ function saveStateData() {
     syncTappers: state.syncTappers,
     processing: state.processing,
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function saveStateData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(getStateData()));
 }
 
 function loadStateData(dataObj) {

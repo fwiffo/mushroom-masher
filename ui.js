@@ -176,7 +176,7 @@ function renderResults(results) {
     }
 
     if (results.logCount > 0) {
-      const goldPerDay = results.totalGoldPerYear / 112;
+      const goldPerDay = results.totalGoldPerYear / DAYS_PER_YEAR;
       const gridArea = results.gridArea || (state.gridWidth * state.gridHeight);
 
       html += `
@@ -491,25 +491,25 @@ function populateMathModal(results) {
     <h3>1. Harvest Frequency</h3>
     <ul>
       <li><strong>Location:</strong> Calico Desert (it never rains)</li>
-      <li><strong>Result:</strong> Harvest interval is always exactly <code>4 days</code>.</li>
-      <li><strong>Yearly Yield:</strong> 112 days / 4 = <code>28 harvests per year</code>.</li>
+      <li><strong>Result:</strong> Harvest interval is always exactly <code>${BASE_HARVEST_CYCLE_DAYS} days</code>.</li>
+      <li><strong>Yearly Yield:</strong> ${DAYS_PER_YEAR} days / ${BASE_HARVEST_CYCLE_DAYS} = <code>${DAYS_PER_YEAR / BASE_HARVEST_CYCLE_DAYS} harvests per year</code>.</li>
     </ul>
     `;
   } else {
     const loc = state.farmLocation === 'ginger' ? 'Ginger Island' : 'Main Farm';
-    let rainProbPct = state.farmLocation === 'ginger' ? 24 : 13.56;
-    let rainProbStr = state.farmLocation === 'ginger' ? '24' : '13.56';
+    let rainProbPct = state.farmLocation === 'ginger' ? (RAIN_PROB_GINGER * 100) : (RAIN_PROB_MAIN * 100);
     const isTotem = state.useRainTotems;
 
     if (isTotem) {
-      rainProbPct = 89;
-      rainProbStr = '89';
+      rainProbPct = (RAIN_PROB_TOTEM * 100);
     }
+
+    let rainProbStr = rainProbPct.toString();
 
     html += `
     <h3>1. Harvest Frequency</h3>
     <ul>
-      <li><strong>Base cycle:</strong> 4 days</li>
+      <li><strong>Base cycle:</strong> ${BASE_HARVEST_CYCLE_DAYS} days</li>
       <li><strong>Location:</strong> ${loc} (average ${rainProbStr}% chance of rain per day)
         ${!isTotem && state.farmLocation === 'main' ? `
           <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
@@ -518,20 +518,20 @@ function populateMathModal(results) {
             <li>Winter never has rain naturally.</li>
             <li>There is never rain on the 1st day of any season.</li>
             <li>Festival days are always sunny, overriding any weather.</li>
-            <li>Averaging this out over the 112-day year yields approximately 13.56%.</li>
+            <li>Averaging this out over the ${DAYS_PER_YEAR}-day year yields approximately ${RAIN_PROB_MAIN * 100}%.</li>
           </ul>
         ` : ''}
         ${isTotem ? `
           <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
             <li>Rain Totems force rain every day except on festival days and the 1st of the season.</li>
-            <li>This averages out to an 89% chance of rain per day over the year.</li>
+            <li>This averages out to an ${RAIN_PROB_TOTEM * 100}% chance of rain per day over the year.</li>
           </ul>
         ` : ''}
       </li>
       <li><strong>Mechanic:</strong> Each day it rains reduces the remaining harvest time by 1 day.</li>
-      <li><strong>Math:</strong> The expected progress per day is <code>1 + ${rainProbStr}%</code>. The average days to reach 4 progress is <code>4 / (1 + ${rainProbStr}%)</code>.</li>
+      <li><strong>Math:</strong> The expected progress per day is <code>1 + ${rainProbStr}%</code>. The average days to reach ${BASE_HARVEST_CYCLE_DAYS} progress is <code>${BASE_HARVEST_CYCLE_DAYS} / (1 + ${rainProbStr}%)</code>.</li>
       <li><strong>Result:</strong> Average harvest interval is <code>${results.avgCycleDays.toFixed(2)} days</code>.</li>
-      <li><strong>Yearly Yield:</strong> 112 days / ${results.avgCycleDays.toFixed(2)} = <code>~${results.totalHarvests} harvests per year</code>.</li>
+      <li><strong>Yearly Yield:</strong> ${DAYS_PER_YEAR} days / ${results.avgCycleDays.toFixed(2)} = <code>~${results.totalHarvests} harvests per year</code>.</li>
     </ul>
     `;
   }

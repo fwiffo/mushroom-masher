@@ -67,6 +67,14 @@ const CELL_EMPTY = 0;
 const CELL_TREE = 1;
 const CELL_MUSHLOG = 2;
 
+// ── Constants ────────────────────────────────────────────────
+const DAYS_PER_YEAR = 112;
+const DAYS_PER_YEAR_NO_WINTER = 84;
+const BASE_HARVEST_CYCLE_DAYS = 4;
+const RAIN_PROB_GINGER = 0.24;
+const RAIN_PROB_MAIN = 0.1356;
+const RAIN_PROB_TOTEM = 0.89;
+
 // ── Calculation Engine ───────────────────────────────────────
 
 function getNearbyCells(grid, logR, logC, gridW, gridH, config) {
@@ -211,14 +219,13 @@ function calculateFarm(config) {
   }
 
   // Harvest timing
-  const daysPerYear = 112;
-  let rainProb = config.farmLocation === 'ginger' ? 0.24 : config.farmLocation === 'desert' ? 0 : 0.1356;
+  let rainProb = config.farmLocation === 'ginger' ? RAIN_PROB_GINGER : config.farmLocation === 'desert' ? 0 : RAIN_PROB_MAIN;
   if (config.useRainTotems && config.farmLocation !== 'desert') {
-    rainProb = 0.89;
+    rainProb = RAIN_PROB_TOTEM;
   }
 
-  const avgCycleDays = 4 / (1 + rainProb);
-  const totalHarvests = Math.floor(daysPerYear / avgCycleDays);
+  const avgCycleDays = BASE_HARVEST_CYCLE_DAYS / (1 + rainProb);
+  const totalHarvests = Math.floor(DAYS_PER_YEAR / avgCycleDays);
 
   // Compute gold
   let totalGoldPerHarvest = 0;
@@ -291,7 +298,7 @@ function calculateFarm(config) {
         const isHeavy = cell.tapper === 'heavy_tapper';
         const tapperName = isHeavy ? 'Heavy Tapper' : 'Tapper';
         const tapperDays = isHeavy ? tapperData.heavyTapperDays : tapperData.tapperDays;
-        const activeDaysPerYear = tapperData.winter ? 112 : 84;
+        const activeDaysPerYear = tapperData.winter ? DAYS_PER_YEAR : DAYS_PER_YEAR_NO_WINTER;
 
         let harvestsPerYear = 0;
         if (config.syncTappers) {

@@ -29,8 +29,8 @@ function syncUIWithState() {
   if (syncTappersToggle) syncTappersToggle.checked = state.syncTappers;
 
   if (rainFrequencyDisplay) {
-    let rainPct = state.farmLocation === 'ginger' ? 24 : state.farmLocation === 'desert' ? 0 : 13.56;
-    if (state.useRainTotems && state.farmLocation !== 'desert') rainPct = 89;
+    let rainPct = state.farmLocation === 'ginger' ? (RAIN_PROB_GINGER * 100) : state.farmLocation === 'desert' ? 0 : (RAIN_PROB_MAIN * 100);
+    if (state.useRainTotems && state.farmLocation !== 'desert') rainPct = (RAIN_PROB_TOTEM * 100);
     rainFrequencyDisplay.textContent = `~${rainPct}% chance of rain per day`;
   }
 
@@ -42,17 +42,17 @@ function syncUIWithState() {
 }
 
 function initGrid() {
-  state.gridWidth = parseInt(gridWidthInput.value) || 12;
-  state.gridHeight = parseInt(gridHeightInput.value) || 12;
+  state.gridWidth = parseInt(gridWidthInput.value) || 15;
+  state.gridHeight = parseInt(gridHeightInput.value) || 15;
   state.grid = createEmptyGrid(state.gridWidth, state.gridHeight);
   renderGrid();
 }
 
 function resizeGrid() {
-  const newW = parseInt(gridWidthInput.value) || 12;
-  const newH = parseInt(gridHeightInput.value) || 12;
-  const tw = parseInt(tileWidthInput.value) || 3;
-  const th = parseInt(tileHeightInput.value) || 4;
+  const newW = parseInt(gridWidthInput.value) || 15;
+  const newH = parseInt(gridHeightInput.value) || 15;
+  const tw = parseInt(tileWidthInput.value) || 5;
+  const th = parseInt(tileHeightInput.value) || 5;
 
   state.grid = resizeGridData(state.grid, newW, newH, state.tileableMode, tw, th);
   state.gridWidth = newW;
@@ -142,8 +142,8 @@ function handleCellClick(r, c) {
 
 function mirrorCellToTileableGrid(r, c) {
   if (!state.tileableMode) return;
-  const tw = parseInt(tileWidthInput.value) || 3;
-  const th = parseInt(tileHeightInput.value) || 4;
+  const tw = parseInt(tileWidthInput.value) || 5;
+  const th = parseInt(tileHeightInput.value) || 5;
 
   const modified = mirrorCellToTileableGridData(state.grid, state.gridWidth, state.gridHeight, r, c, tw, th);
   for (const coord of modified) {
@@ -153,8 +153,8 @@ function mirrorCellToTileableGrid(r, c) {
 
 function retileGrid() {
   if (!state.tileableMode) return;
-  const tw = parseInt(tileWidthInput.value) || 3;
-  const th = parseInt(tileHeightInput.value) || 4;
+  const tw = parseInt(tileWidthInput.value) || 5;
+  const th = parseInt(tileHeightInput.value) || 5;
   retileGridData(state.grid, state.gridWidth, state.gridHeight, tw, th);
 }
 
@@ -215,21 +215,7 @@ function setupEventListeners() {
         return;
       }
       const presets = loadPresets();
-      presets[name] = {
-        gridWidth: state.gridWidth,
-        gridHeight: state.gridHeight,
-        grid: state.grid,
-        tileableMode: state.tileableMode,
-        wrapAround: state.wrapAround,
-        tileWidth: state.tileWidth,
-        tileHeight: state.tileHeight,
-        farmLocation: state.farmLocation,
-        useRainTotems: state.useRainTotems,
-        artisanProfession: state.artisanProfession,
-        tapperProfession: state.tapperProfession,
-        syncTappers: state.syncTappers,
-        processing: state.processing,
-      };
+      presets[name] = getStateData();
       savePresetsData(presets);
       updatePresetDropdown(presets);
       presetNameInput.value = '';
@@ -284,17 +270,19 @@ function setupEventListeners() {
     });
   }
 
-  if (wrapAroundToggle) {
-    wrapAroundToggle.addEventListener('change', () => {
-      state.wrapAround = wrapAroundToggle.checked;
+  function bindToggle(el, stateKey) {
+    if (!el) return;
+    el.addEventListener('change', () => {
+      state[stateKey] = el.checked;
       saveStateData();
       updateCalculation();
     });
   }
 
-  if (tileWidthInput) {
-    tileWidthInput.addEventListener('change', () => {
-      state.tileWidth = parseInt(tileWidthInput.value) || 3;
+  function bindIntInput(el, stateKey, defaultVal) {
+    if (!el) return;
+    el.addEventListener('change', () => {
+      state[stateKey] = parseInt(el.value) || defaultVal;
       retileGrid();
       renderGrid();
       saveStateData();
@@ -302,59 +290,19 @@ function setupEventListeners() {
     });
   }
 
-  if (tileHeightInput) {
-    tileHeightInput.addEventListener('change', () => {
-      state.tileHeight = parseInt(tileHeightInput.value) || 4;
-      retileGrid();
-      renderGrid();
-      saveStateData();
-      updateCalculation();
-    });
-  }
+  bindToggle(wrapAroundToggle, 'wrapAround');
+  bindToggle(artisanToggle, 'artisanProfession');
+  bindToggle(tapperToggle, 'tapperProfession');
+  bindToggle(syncTappersToggle, 'syncTappers');
 
-  if (artisanToggle) {
-    artisanToggle.addEventListener('change', () => {
-      state.artisanProfession = artisanToggle.checked;
-      saveStateData();
-      updateCalculation();
-    });
-  }
-
-  if (tapperToggle) {
-    tapperToggle.addEventListener('change', () => {
-      state.tapperProfession = tapperToggle.checked;
-      saveStateData();
-      updateCalculation();
-    });
-  }
-
-  if (syncTappersToggle) {
-    syncTappersToggle.addEventListener('change', () => {
-      state.syncTappers = syncTappersToggle.checked;
-      saveStateData();
-      updateCalculation();
-    });
-  }
+  bindIntInput(tileWidthInput, 'tileWidth', 5);
+  bindIntInput(tileHeightInput, 'tileHeight', 5);
 
   if (farmLocationSelect) {
     farmLocationSelect.addEventListener('change', (e) => {
       state.farmLocation = e.target.value;
+      syncUIWithState();
       saveStateData();
-
-      if (rainTotemToggle) {
-        rainTotemToggle.disabled = (state.farmLocation === 'desert');
-        const row = rainTotemToggle.closest('.toggle-row');
-        if (row) {
-          row.style.opacity = state.farmLocation === 'desert' ? '0.5' : '1';
-          row.style.pointerEvents = state.farmLocation === 'desert' ? 'none' : 'auto';
-        }
-      }
-
-      if (rainFrequencyDisplay) {
-        let rainPct = state.farmLocation === 'ginger' ? 24 : state.farmLocation === 'desert' ? 0 : 13.56;
-        if (state.useRainTotems && state.farmLocation !== 'desert') rainPct = 89;
-        rainFrequencyDisplay.textContent = `~${rainPct}% chance of rain per day`;
-      }
       updateCalculation();
     });
   }
@@ -362,12 +310,8 @@ function setupEventListeners() {
   if (rainTotemToggle) {
     rainTotemToggle.addEventListener('change', (e) => {
       state.useRainTotems = e.target.checked;
+      syncUIWithState();
       saveStateData();
-      if (rainFrequencyDisplay) {
-        let rainPct = state.farmLocation === 'ginger' ? 24 : state.farmLocation === 'desert' ? 0 : 13.56;
-        if (state.useRainTotems && state.farmLocation !== 'desert') rainPct = 89;
-        rainFrequencyDisplay.textContent = `~${rainPct}% chance of rain per day`;
-      }
       updateCalculation();
     });
   }
