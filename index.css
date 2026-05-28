@@ -269,6 +269,7 @@ h3 .header-icon {
   height: 32px;
   object-fit: contain;
   transition: transform var(--transition-fast);
+  image-rendering: auto;
 }
 
 .tool-btn .tool-icon.mushlog {
@@ -303,8 +304,9 @@ h3 .header-icon {
 img.tool-icon,
 img.cell-img,
 img.result-icon {
-  image-rendering: pixelated;
+  image-rendering: auto;
   object-fit: contain;
+  height: 36px;
 }
 
 .cell-img {
@@ -344,7 +346,6 @@ img.result-icon {
   width: 48px;
   height: auto;
   vertical-align: middle;
-  margin-right: 8px;
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
 }
 
@@ -721,6 +722,7 @@ details.results-section summary span {
 .prob-bar-label .pct {
   color: var(--text-primary);
   font-weight: 600;
+  line-height: 36px;
 }
 
 .prob-bar {
