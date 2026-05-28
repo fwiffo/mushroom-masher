@@ -289,10 +289,7 @@ function initGrid() {
   renderGrid();
 }
 
-function resizeGrid() {
-  const newW = parseInt(gridWidthInput.value) || 15;
-  const newH = parseInt(gridHeightInput.value) || 15;
-  const oldGrid = state.grid;
+function resizeGridData(oldGrid, newW, newH, tileableMode, tileW, tileH) {
   const newGrid = createEmptyGrid(newW, newH);
 
   // Preserve existing cells
@@ -303,23 +300,30 @@ function resizeGrid() {
   }
 
   // Populate new cells if tileable mode is on
-  if (state.tileableMode) {
-    const tw = parseInt(tileWidthInput.value) || 7;
-    const th = parseInt(tileHeightInput.value) || 7;
+  if (tileableMode) {
     for (let r = 0; r < newH; r++) {
       for (let c = 0; c < newW; c++) {
         if (r >= oldGrid.length || c >= oldGrid[0].length) {
-          const localR = r % th;
-          const localC = c % tw;
+          const localR = r % tileH;
+          const localC = c % tileW;
           newGrid[r][c] = { ...newGrid[localR][localC] };
         }
       }
     }
   }
 
+  return newGrid;
+}
+
+function resizeGrid() {
+  const newW = parseInt(gridWidthInput.value) || 15;
+  const newH = parseInt(gridHeightInput.value) || 15;
+  const tw = parseInt(tileWidthInput.value) || 7;
+  const th = parseInt(tileHeightInput.value) || 7;
+
+  state.grid = resizeGridData(state.grid, newW, newH, state.tileableMode, tw, th);
   state.gridWidth = newW;
   state.gridHeight = newH;
-  state.grid = newGrid;
   renderGrid();
   saveState();
 }
@@ -489,22 +493,41 @@ function handleCellClick(r, c) {
   }
 }
 
+function syncTileableGridData(grid, gridW, gridH, r, c, tileW, tileH) {
+  const modifiedCoords = [];
+  const localR = r % tileH;
+  const localC = c % tileW;
+  const sourceCell = grid[r][c];
+
+  for (let tr = localR; tr < gridH; tr += tileH) {
+    for (let tc = localC; tc < gridW; tc += tileW) {
+      if (tr === r && tc === c) continue;
+      grid[tr][tc] = { ...sourceCell };
+      modifiedCoords.push({ r: tr, c: tc });
+    }
+  }
+  return modifiedCoords;
+}
+
 function syncTileableGrid(r, c) {
   if (!state.tileableMode) return;
   const tw = parseInt(tileWidthInput.value) || 7;
   const th = parseInt(tileHeightInput.value) || 7;
 
-  // Determine which tile-local position this is
-  const localR = r % th;
-  const localC = c % tw;
-  const sourceCell = state.grid[r][c];
+  const modified = syncTileableGridData(state.grid, state.gridWidth, state.gridHeight, r, c, tw, th);
+  for (const coord of modified) {
+    updateSingleCell(coord.r, coord.c);
+  }
+}
 
-  // Copy to all other tiles
-  for (let tr = localR; tr < state.gridHeight; tr += th) {
-    for (let tc = localC; tc < state.gridWidth; tc += tw) {
-      if (tr === r && tc === c) continue;
-      state.grid[tr][tc] = { ...sourceCell };
-      updateSingleCell(tr, tc);
+function retileGridData(grid, gridW, gridH, tileW, tileH) {
+  for (let r = 0; r < gridH; r++) {
+    for (let c = 0; c < gridW; c++) {
+      const localR = r % tileH;
+      const localC = c % tileW;
+      if (r !== localR || c !== localC) {
+        grid[r][c] = { ...grid[localR][localC] };
+      }
     }
   }
 }
@@ -513,16 +536,7 @@ function retileGrid() {
   if (!state.tileableMode) return;
   const tw = parseInt(tileWidthInput.value) || 7;
   const th = parseInt(tileHeightInput.value) || 7;
-
-  for (let r = 0; r < state.gridHeight; r++) {
-    for (let c = 0; c < state.gridWidth; c++) {
-      const localR = r % th;
-      const localC = c % tw;
-      if (r !== localR || c !== localC) {
-        state.grid[r][c] = { ...state.grid[localR][localC] };
-      }
-    }
-  }
+  retileGridData(state.grid, state.gridWidth, state.gridHeight, tw, th);
 }
 
 function handleCellHover(r, c) {
@@ -761,7 +775,7 @@ function calculateFarm(config) {
     rainProb = 0.89;
   }
 
-  // Since a rainy day grants 2 days of progress and a sunny day grants 1, 
+  // Since a rainy day grants 2 days of progress and a sunny day grants 1,
   // expected daily progress is (1 - rainProb) * 1 + (rainProb) * 2 = 1 + rainProb.
   // Therefore, the average cycle length is 4 / (1 + rainProb).
   const avgCycleDays = 4 / (1 + rainProb);

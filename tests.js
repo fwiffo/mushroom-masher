@@ -61,7 +61,7 @@ function runTests() {
       // Common mushroom base=40
       const dec = getProcessingDecision('common', 0, 'raw', false);
       assertEqual(dec, { price: 40, actualProc: 'raw' });
-      
+
       // Iridium common (40 * 2 = 80)
       const decIr = getProcessingDecision('common', 3, 'raw', false);
       assertEqual(decIr, { price: 80, actualProc: 'raw' });
@@ -145,7 +145,7 @@ function runTests() {
       mockGrid[4][4] = { type: CELL_TREE, treeType: 'mystic', hasMoss: false };
       const config = { infiniteCalc: false, tileableMode: false };
       const res = calculateMushroomLog(mockGrid, 3, 3, 7, 7, config);
-      
+
       assertEqual(res.totalTrees, 5);
       assertEqual(res.mossyCount, 2);
       // treeMossCount = 5 + 2 = 7
@@ -158,7 +158,7 @@ function runTests() {
 
     it('computes correct quantity based on trees', () => {
       const mockGrid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
-      // 8 trees -> halfTrees = 4. 
+      // 8 trees -> halfTrees = 4.
       // qtyLow = min(5, 4*1) = 4
       // qtyHigh = min(5, 4*2) = 5
       // expected = 4.5
@@ -195,12 +195,12 @@ function runTests() {
       state.gridWidth = 7;
       state.gridHeight = 7;
       state.grid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
-      
+
       // Place 1 tree and 2 logs
       state.grid[3][3] = { type: CELL_TREE, treeType: 'oak', hasMoss: false }; // Oak = Morel
       state.grid[3][2] = { type: CELL_MUSHLOG, treeType: null, hasMoss: false };
       state.grid[3][4] = { type: CELL_MUSHLOG, treeType: null, hasMoss: false };
-      
+
       const config = {
         grid: state.grid,
         gridWidth: 7,
@@ -215,7 +215,7 @@ function runTests() {
 
       const farmRes = calculateFarm(config);
       assertEqual(farmRes.logCount, 2);
-      
+
       // Validate morel count: 1 (qty) * 2 (logs) * 0.5 (prob) = 1.0 expected morels/harvest
       let totalMorels = 0;
       for (const log of farmRes.logs) {
@@ -243,20 +243,20 @@ function runTests() {
 
     it('computes correct dehydrators and preserves jars required', () => {
       state.grid = Array.from({length: 7}, () => Array(7).fill({type: CELL_EMPTY}));
-      
+
       // Place 10 logs
       for(let i=0; i<10; i++) {
         const r = 2 + Math.floor(i / 5);
         const c = i % 5;
         state.grid[r][c] = { type: CELL_MUSHLOG, treeType: null, hasMoss: false };
       }
-      
+
       // Place 10 oak trees around them (in the intersection area visible to all 10 logs)
       const treeCoords = [ [0,1],[0,2],[0,3], [1,1],[1,2],[1,3], [4,1],[4,2],[5,1],[5,2] ];
       for(const [r,c] of treeCoords) {
         state.grid[r][c] = { type: CELL_TREE, treeType: 'oak', hasMoss: false };
       }
-      
+
       const config = {
         grid: state.grid,
         gridWidth: 7,
@@ -270,20 +270,20 @@ function runTests() {
       };
 
       const res = calculateFarm(config);
-      
+
       // Verify math:
       // logs = 10, each sees 10 trees -> qty = 5 per log
       // weights: basic = max(1, floor(10 * 0.75)) = 7
       // total entries = 7 basic + 10 oak = 17
       // morel prob = 10 / 17
       // common prob = (7 * 0.8075) / 17
-      
+
       // Expected morels per harvest = 10 logs * 5 qty * (10 / 17) = 29.4117
       // Dehydrator days = 29.4117 / 5 = 5.8823
       // avgCycleDays with totems = 4 / 1.89 = 2.1164
       // dehydratorsRequired = Math.ceil(5.8823 / 2.1164) = 3
       assertEqual(res.dehydratorsRequired, 3);
-      
+
       // Expected common per harvest = 10 logs * 5 qty * (5.6525 / 17) = 16.625
       // Pickle days per jar = 4000 / (24 * 60) = 2.7777
       // Total pickle days = 16.625 * 2.7777 = 46.18
@@ -302,7 +302,7 @@ function runTests() {
         infiniteCalc: false, farmLocation: 'main', useRainTotems: false,
         tapperProfession: false, syncTappers: false
       };
-      
+
       const res = calculateFarm(config);
       // Oak normal: winter=true -> 112 days. Oak days=7 -> 112/7 = 16 harvests. Price=150.
       // Maple heavy: winter=true -> 112 days. Maple heavy days=4 -> 112/4 = 28 harvests. Price=200.
@@ -340,8 +340,82 @@ function runTests() {
         tapperProfession: true, syncTappers: false
       };
       const res = calculateFarm(config);
-      // 16 harvests * Math.floor(150 * 1.25) = 16 * 187 = 2992
       assertEqual(res.tapperBreakdown['Oak Tree (Normal Tapper)'].totalGold, 2992);
+    });
+  });
+
+  describe('Grid Manipulation & Utilities', () => {
+    it('createEmptyGrid() returns a 2D array of correct dimensions with empty cells', () => {
+      const grid = createEmptyGrid(3, 2);
+      assertEqual(grid.length, 2); // 2 rows
+      assertEqual(grid[0].length, 3); // 3 cols
+      assertEqual(grid[0][0].type, CELL_EMPTY);
+    });
+
+    it('resizeGridData() shrinks and expands the grid correctly without tileable wrapping', () => {
+      const oldGrid = createEmptyGrid(3, 3);
+      oldGrid[0][0].type = CELL_MUSHLOG;
+      oldGrid[2][2].type = CELL_TREE;
+
+      // Expand to 4x4
+      const expanded = resizeGridData(oldGrid, 4, 4, false, 2, 2);
+      assertEqual(expanded.length, 4);
+      assertEqual(expanded[0].length, 4);
+      assertEqual(expanded[0][0].type, CELL_MUSHLOG); // preserved
+      assertEqual(expanded[2][2].type, CELL_TREE); // preserved
+      assertEqual(expanded[3][3].type, CELL_EMPTY); // new cell
+
+      // Shrink to 2x2
+      const shrunk = resizeGridData(oldGrid, 2, 2, false, 2, 2);
+      assertEqual(shrunk.length, 2);
+      assertEqual(shrunk[0].length, 2);
+      assertEqual(shrunk[0][0].type, CELL_MUSHLOG); // preserved
+    });
+
+    it('resizeGridData() expands using tileable pattern correctly', () => {
+      const oldGrid = createEmptyGrid(2, 2);
+      oldGrid[0][1].type = CELL_MUSHLOG; // Top right of the 2x2 tile is a log
+
+      // Expand to 4x4 with tileable Mode ON and tile size 2x2
+      const expanded = resizeGridData(oldGrid, 4, 4, true, 2, 2);
+      assertEqual(expanded[0][1].type, CELL_MUSHLOG); // original
+      assertEqual(expanded[0][3].type, CELL_MUSHLOG); // tiled
+      assertEqual(expanded[2][1].type, CELL_MUSHLOG); // tiled
+      assertEqual(expanded[2][3].type, CELL_MUSHLOG); // tiled
+      assertEqual(expanded[1][1].type, CELL_EMPTY); // original empty
+      assertEqual(expanded[3][3].type, CELL_EMPTY); // tiled empty
+    });
+
+    it('syncTileableGridData() returns coordinates of updated tiles', () => {
+      const grid = createEmptyGrid(4, 4);
+      grid[0][0].type = CELL_MUSHLOG; // Change the source cell
+
+      // We modified (0,0) in a 4x4 grid with tile dimensions 2x2.
+      // This should sync to (0,2), (2,0), (2,2)
+      const modified = syncTileableGridData(grid, 4, 4, 0, 0, 2, 2);
+
+      assertEqual(modified.length, 3);
+      assertEqual(grid[0][2].type, CELL_MUSHLOG);
+      assertEqual(grid[2][0].type, CELL_MUSHLOG);
+      assertEqual(grid[2][2].type, CELL_MUSHLOG);
+    });
+
+    it('retileGridData() completely reshapes the grid based on the top-left tile', () => {
+      const grid = createEmptyGrid(4, 4);
+      grid[0][0].type = CELL_TREE;
+      grid[3][3].type = CELL_MUSHLOG; // This should be overwritten
+
+      // Retile using 2x2
+      retileGridData(grid, 4, 4, 2, 2);
+
+      assertEqual(grid[0][0].type, CELL_TREE);
+      assertEqual(grid[2][2].type, CELL_TREE);
+      assertEqual(grid[3][3].type, CELL_EMPTY); // Overwritten by local empty cell (1,1)
+    });
+
+    it('formatGold() adds g and commas correctly', () => {
+      assertEqual(formatGold(1000), '1,000g');
+      assertEqual(formatGold(1500.6), '1,501g'); // rounded
     });
   });
 }
