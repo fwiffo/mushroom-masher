@@ -3,11 +3,11 @@
 // ═══════════════════════════════════════════════════════════════
 
 const MUSHROOM_DATA = {
-  common: { name: 'Common Mushroom', basePrice: 40, color: 'common', emoji: 'assets/Common_Mushroom.png' },
-  red: { name: 'Red Mushroom', basePrice: 75, color: 'red', emoji: 'assets/Red_Mushroom.png' },
-  morel: { name: 'Morel', basePrice: 150, color: 'morel', emoji: 'assets/Morel.png' },
-  chanterelle: { name: 'Chanterelle', basePrice: 160, color: 'chanterelle', emoji: 'assets/Chanterelle.png' },
-  purple: { name: 'Purple Mushroom', basePrice: 250, color: 'purple', emoji: 'assets/Purple_Mushroom.png' },
+  common: { name: 'Common Mushroom', basePrice: 40, emoji: 'assets/Common_Mushroom.png' },
+  red: { name: 'Red Mushroom', basePrice: 75, emoji: 'assets/Red_Mushroom.png' },
+  morel: { name: 'Morel', basePrice: 150, emoji: 'assets/Morel.png' },
+  chanterelle: { name: 'Chanterelle', basePrice: 160, emoji: 'assets/Chanterelle.png' },
+  purple: { name: 'Purple Mushroom', basePrice: 250, emoji: 'assets/Purple_Mushroom.png' },
 };
 
 // Quality multipliers: normal=1x, silver=1.25x, gold=1.5x, iridium=2x
@@ -339,7 +339,6 @@ function calculateFarm(config) {
     totalHarvests,
     avgCycleDays,
     totalGoldPerYear: totalGoldPerHarvest * totalHarvests,
-    tileMode: tileable,
     dehydratorsRequired,
     jarsRequired,
     totalTapperGoldPerYear,
