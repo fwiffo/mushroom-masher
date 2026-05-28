@@ -130,11 +130,9 @@ function handleCellClick(r, c) {
   // Tree placement
   if (TREE_TYPES[tool]) {
     if (cell.type === CELL_TREE && cell.treeType === tool) {
-      // Just re-clicking the same tree tool doesn't do anything special anymore
       return;
-    } else {
-      state.grid[r][c] = { type: CELL_TREE, treeType: tool, hasMoss: false, tapper: null };
     }
+    state.grid[r][c] = { type: CELL_TREE, treeType: tool, hasMoss: false, tapper: null };
     updateSingleCell(r, c);
     mirrorCellToTileableGrid(r, c);
     saveStateData();

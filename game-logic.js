@@ -10,7 +10,7 @@ const MUSHROOM_DATA = {
   purple: { name: 'Purple Mushroom', basePrice: 250, color: 'purple', emoji: 'assets/Purple_Mushroom.png' },
 };
 
-// Quality multipliers: base=1x, silver=1.25x, gold=1.5x, iridium=2x
+// Quality multipliers: normal=1x, silver=1.25x, gold=1.5x, iridium=2x
 const QUALITY_MULTIPLIERS = [1, 1.25, 1.5, 2];
 const QUALITY_NAMES = ['Normal', 'Silver', 'Gold', 'Iridium'];
 const QUALITY_CLASSES = ['normal', 'silver', 'gold', 'iridium'];

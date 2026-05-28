@@ -324,7 +324,6 @@ function runTests() {
       };
       const res = calculateFarm(config);
       // avgCycleDays = 3.522 (without totems, 1 log, no trees)
-      // Wait, 0 logs means avgCycleDays = 3.52236?
       // numMushroomCyclesForTapper = Math.ceil(7 / 3.52236) = 2
       // mushroomRunsInActivePeriod = Math.floor(112 / 3.52236) = 31
       // harvestsPerYear = Math.floor(31 / 2) = 15
