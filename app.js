@@ -509,6 +509,22 @@ function syncTileableGrid(r, c) {
   }
 }
 
+function retileGrid() {
+  if (!state.tileableMode) return;
+  const tw = parseInt(tileWidthInput.value) || 7;
+  const th = parseInt(tileHeightInput.value) || 7;
+
+  for (let r = 0; r < state.gridHeight; r++) {
+    for (let c = 0; c < state.gridWidth; c++) {
+      const localR = r % th;
+      const localC = c % tw;
+      if (r !== localR || c !== localC) {
+        state.grid[r][c] = { ...state.grid[localR][localC] };
+      }
+    }
+  }
+}
+
 function handleCellHover(r, c) {
   const cell = state.grid[r][c];
   if (cell.type === CELL_MUSHLOG) {
@@ -1365,6 +1381,7 @@ function setupEventListeners() {
   tileableToggle.addEventListener('change', () => {
     state.tileableMode = tileableToggle.checked;
     tileSizeSettings.style.display = state.tileableMode ? 'block' : 'none';
+    if (state.tileableMode) retileGrid();
     renderGrid();
     saveState();
   });
@@ -1376,12 +1393,14 @@ function setupEventListeners() {
 
   tileWidthInput.addEventListener('change', () => {
     state.tileWidth = parseInt(tileWidthInput.value) || 7;
+    retileGrid();
     renderGrid();
     saveState();
   });
 
   tileHeightInput.addEventListener('change', () => {
     state.tileHeight = parseInt(tileHeightInput.value) || 7;
+    retileGrid();
     renderGrid();
     saveState();
   });
