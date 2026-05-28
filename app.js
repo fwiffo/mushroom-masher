@@ -19,7 +19,7 @@ const QUALITY_CLASSES = ['base', 'silver', 'gold', 'iridium'];
 
 // Preserves Jar: 2 * base + 50
 // Dehydrator: base * 7.5 (for 5 mushrooms input → 1 dried output, value = base * 7.5)
-// Actually let me check the wiki values:
+// Wiki values:
 // Common: raw 40, pickles 130, dried 325
 // Morel: raw 150, pickles 350, dried 1150
 // Chanterelle: raw 160, pickles 370, dried 1225
@@ -31,8 +31,7 @@ const QUALITY_CLASSES = ['base', 'silver', 'gold', 'iridium'];
 // Morel dried: 1150. 150*7.5=1125+25=1150 ✓
 // Chanterelle dried: 1225. 160*7.5=1200+25=1225 ✓
 // Purple dried: 1900. 250*7.5=1875+25=1900 ✓
-// So dried = base * 7.5 + 25
-// But dried requires 5 mushrooms as input. So per-mushroom value = (base*7.5+25)/5
+// Dried requires 5 mushrooms as input. So per-mushroom value = (base*7.5+25)/5
 
 function getProcessingDecision(mushroomKey, quality, processing, artisanProfession) {
   const base = MUSHROOM_DATA[mushroomKey].base;
