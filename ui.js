@@ -166,10 +166,10 @@ function renderResults(results) {
     const combined = (results.totalGoldPerYear || 0) + (results.totalTapperGoldPerYear || 0);
     if (results.logCount > 0 || hasTappers) {
       html += `
-        <div class="results-section" style="margin-bottom:16px; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid var(--text-accent); box-shadow: inset 0 0 10px rgba(52,211,153,0.1);">
+        <div class="results-section combined-gold-card">
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px;">
-            <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary); text-transform: uppercase; letter-spacing: 1px;">Combined Gold / Year</span>
-            <span style="font-size: 1.4rem; font-weight: bold; color: var(--text-accent); text-shadow: 0 0 8px rgba(52,211,153,0.4);">${formatGold(combined)}</span>
+            <span class="combined-gold-label">Combined Gold / Year</span>
+            <span class="combined-gold-value">${formatGold(combined)}</span>
           </div>
         </div>
       `;
@@ -180,7 +180,7 @@ function renderResults(results) {
       const gridArea = results.gridArea || (state.gridWidth * state.gridHeight);
 
       html += `
-      <div style="margin: 24px 0 16px 0; padding-bottom: 8px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 1px;">
+      <div class="section-header">
         🍄 MUSHROOM LOGS
       </div>
       <div class="gold-summary">
@@ -192,12 +192,12 @@ function renderResults(results) {
         <div class="gold-summary" style="flex:1; margin-bottom:0; padding:16px 12px;">
           <div class="big-number" style="font-size:1.3rem;">${formatGold(goldPerDay)}</div>
           <div class="big-label" style="font-size:0.7rem;">Gold / Day</div>
-          <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:6px; text-align:center;">${formatGold(goldPerDay / gridArea)} / tile</div>
+          <div class="stat-subtext">${formatGold(goldPerDay / gridArea)} / tile</div>
         </div>
         <div class="gold-summary" style="flex:1; margin-bottom:0; padding:16px 12px;">
           <div class="big-number" style="font-size:1.3rem;">${formatGold(results.totalGoldPerYear)}</div>
           <div class="big-label" style="font-size:0.7rem;">Gold / Year</div>
-          <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:6px; text-align:center;">${formatGold(results.totalGoldPerYear / gridArea)} / tile</div>
+          <div class="stat-subtext">${formatGold(results.totalGoldPerYear / gridArea)} / tile</div>
         </div>
       </div>
     `;
@@ -221,7 +221,7 @@ function renderResults(results) {
 
       if (results.treeCount > 0) {
         html += `
-        <div class="stat-row" style="flex-direction: column; align-items: flex-start; padding-top: 8px; border-top: 1px solid var(--border-color);">
+        <div class="stat-row vertical">
           <span class="stat-label" style="margin-bottom: 4px; display: flex; justify-content: space-between; width: 100%;">
             <span>Trees</span>
             <span class="stat-value">${results.treeCount} (${treePct}%)</span>
@@ -232,11 +232,11 @@ function renderResults(results) {
           const tInfo = TREE_TYPES[tType];
           if (tInfo) {
             html += `
-            <div class="stat-row" style="padding: 2px 0; border: none;">
-              <span class="stat-label" style="font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+            <div class="stat-row mini">
+              <span class="stat-label">
                 <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
               </span>
-              <span class="stat-value" style="font-size: 0.8rem;">${tCount}</span>
+              <span class="stat-value">${tCount}</span>
             </div>
           `;
           }
@@ -248,7 +248,7 @@ function renderResults(results) {
       }
 
       html += `
-        <div class="stat-row" style="padding-top: 8px; border-top: 1px solid var(--border-color);">
+        <div class="stat-row vertical">
           <span class="stat-label">Avg. harvest interval</span>
           <span class="stat-value">${results.avgCycleDays.toFixed(1)} days</span>
         </div>
@@ -344,8 +344,8 @@ function renderResults(results) {
       // ── Per-Log Details ──
       html += `
       <details class="results-section" style="margin-top:14px; cursor:pointer;">
-        <summary style="outline:none; font-size:0.85rem; color:var(--text-accent); letter-spacing:1.5px; text-transform:uppercase; font-weight:600;">
-          <span style="display:inline-flex; align-items:center; gap:8px;">📍 PER-LOG DETAILS</span>
+        <summary>
+          <span>📍 PER-LOG DETAILS</span>
         </summary>
         <div style="margin-top:16px; cursor:default; display:flex; flex-direction:column; gap:8px;">
     `;
@@ -381,18 +381,18 @@ function renderResults(results) {
             <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
               <strong>Located at:</strong> ${group.coords.join(', ')}
             </div>
-            <div class="stat-row" style="flex-direction: column; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <div class="stat-row vertical">
               <span class="stat-label">Nearby trees: ${log.totalTrees} (${log.mossyCount} Mossy)</span>
               <div style="padding-left: 10px; width: 100%; margin-top: 4px;">
                 ${Object.entries(log.nearbyTreeCounts || {}).map(([tType, tCount]) => {
           const tInfo = TREE_TYPES[tType];
           if (!tInfo) return '';
           return `
-                    <div class="stat-row" style="padding: 2px 0; border: none;">
-                      <span class="stat-label" style="font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                    <div class="stat-row mini">
+                      <span class="stat-label">
                         <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
                       </span>
-                      <span class="stat-value" style="font-size: 0.8rem;">${tCount}</span>
+                      <span class="stat-value">${tCount}</span>
                     </div>
                   `;
         }).join('')}
@@ -437,7 +437,7 @@ function renderResults(results) {
     // ── Render Tappers ──
     if (hasTappers) {
       html += `
-      <div style="margin: 32px 0 16px 0; padding-bottom: 8px; border-bottom: 2px solid rgba(255, 255, 255, 0.1); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 1px;">
+      <div class="section-header">
         🍯 TAPPERS
       </div>
       <div class="results-section">
@@ -484,11 +484,23 @@ function formatGold(amount) {
 function populateMathModal(results) {
   if (!results || !modalBody) return;
 
-  const loc = state.farmLocation === 'ginger' ? 'Ginger Island' : state.farmLocation === 'desert' ? 'Calico Desert' : 'Main Farm';
-  const rainProbPct = state.farmLocation === 'ginger' ? 24 : state.farmLocation === 'desert' ? 0 : 13.56;
-  const rainProbStr = state.farmLocation === 'ginger' ? '24' : state.farmLocation === 'desert' ? '0' : '13.56';
+  let html = '';
+  
+  if (state.farmLocation === 'desert') {
+    html += `
+    <h3>1. Harvest Frequency</h3>
+    <ul>
+      <li><strong>Location:</strong> Calico Desert (it never rains)</li>
+      <li><strong>Result:</strong> Harvest interval is always exactly <code>4 days</code>.</li>
+      <li><strong>Yearly Yield:</strong> 112 days / 4 = <code>28 harvests per year</code>.</li>
+    </ul>
+    `;
+  } else {
+    const loc = state.farmLocation === 'ginger' ? 'Ginger Island' : 'Main Farm';
+    const rainProbPct = state.farmLocation === 'ginger' ? 24 : 13.56;
+    const rainProbStr = state.farmLocation === 'ginger' ? '24' : '13.56';
 
-  let html = `
+    html += `
     <h3>1. Harvest Frequency</h3>
     <ul>
       <li><strong>Base cycle:</strong> 4 days</li>
@@ -509,7 +521,10 @@ function populateMathModal(results) {
       <li><strong>Result:</strong> Average harvest interval is <code>${results.avgCycleDays.toFixed(2)} days</code>.</li>
       <li><strong>Yearly Yield:</strong> 112 days / ${results.avgCycleDays.toFixed(2)} = <code>~${results.totalHarvests} harvests per year</code>.</li>
     </ul>
+    `;
+  }
 
+  html += `
     <h3>2. Quantity (Per Log)</h3>
     <ul>
       <li><strong>Mechanic:</strong> The game counts wild trees in a 7×7 square around the log.</li>
