@@ -153,321 +153,349 @@ function renderResults(results) {
   const hasTappers = results.tapperBreakdown && Object.keys(results.tapperBreakdown).length > 0;
   if (showMathBtn) showMathBtn.style.display = (results.logCount > 0 || hasTappers) ? 'block' : 'none';
 
+  if (results.logCount === 0 && !hasTappers) {
+    resultsContent.innerHTML = renderEmptyState();
+    return;
+  }
+
+  const gridArea = results.gridArea || (state.gridWidth * state.gridHeight);
   let html = '';
 
-  if (results.logCount === 0 && !hasTappers) {
-    html = `
-      <div class="empty-state">
-        <img src="assets/Mushroom_Log.png" class="icon" alt="Log" style="width: 48px; height: 48px; image-rendering: pixelated;">
-        <p>No mushroom logs or tappers found. Place some logs near trees or tappers on trees to see production stats.</p>
-      </div>`;
-  } else {
-    // ── Combined Gold Headline ──
-    const combined = (results.totalGoldPerYear || 0) + (results.totalTapperGoldPerYear || 0);
-    if (results.logCount > 0 || hasTappers) {
-      html += `
-        <div class="results-section combined-gold-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px;">
-            <span class="combined-gold-label">Combined Gold / Year</span>
-            <span class="combined-gold-value">${formatGold(combined)}</span>
+  html += renderCombinedGold(results, hasTappers);
+
+  if (results.logCount > 0) {
+    html += renderMushroomLogsSummary(results, gridArea);
+    html += renderFarmOverview(results, gridArea);
+    html += renderMushroomMix(results, gridArea);
+    html += renderProcessingRequirements(results);
+    html += renderPerLogDetails(results);
+  }
+
+  if (hasTappers) {
+    html += renderTappersSummary(results);
+  }
+
+  resultsContent.innerHTML = html;
+}
+
+function renderEmptyState() {
+  return `
+    <div class="empty-state">
+      <img src="assets/Mushroom_Log.png" class="icon" alt="Log" style="width: 48px; height: 48px; image-rendering: pixelated;">
+      <p>No mushroom logs or tappers found. Place some logs near trees or tappers on trees to see production stats.</p>
+    </div>`;
+}
+
+function renderCombinedGold(results, hasTappers) {
+  if (results.logCount === 0 && !hasTappers) return '';
+  const combined = (results.totalGoldPerYear || 0) + (results.totalTapperGoldPerYear || 0);
+  return `
+    <div class="results-section combined-gold-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px;">
+        <span class="combined-gold-label">Combined Gold / Year</span>
+        <span class="combined-gold-value">${formatGold(combined)}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderMushroomLogsSummary(results, gridArea) {
+  const goldPerDay = results.totalGoldPerYear / DAYS_PER_YEAR;
+  return `
+    <div class="section-header">
+      🍄 MUSHROOM LOGS
+    </div>
+    <div class="gold-summary">
+      <div class="big-number">${formatGold(results.totalGoldPerHarvest)}</div>
+      <div class="big-label">Expected gold per harvest</div>
+      <div style="font-size:0.85rem; color:var(--text-secondary); margin-top:6px; text-align:center;">${formatGold(results.totalGoldPerHarvest / gridArea)} per tile</div>
+    </div>
+    <div style="display:flex; gap:12px; margin-bottom:16px;">
+      <div class="gold-summary" style="flex:1; margin-bottom:0; padding:16px 12px;">
+        <div class="big-number" style="font-size:1.3rem;">${formatGold(goldPerDay)}</div>
+        <div class="big-label" style="font-size:0.7rem;">Gold / Day</div>
+        <div class="stat-subtext">${formatGold(goldPerDay / gridArea)} / tile</div>
+      </div>
+      <div class="gold-summary" style="flex:1; margin-bottom:0; padding:16px 12px;">
+        <div class="big-number" style="font-size:1.3rem;">${formatGold(results.totalGoldPerYear)}</div>
+        <div class="big-label" style="font-size:0.7rem;">Gold / Year</div>
+        <div class="stat-subtext">${formatGold(results.totalGoldPerYear / gridArea)} / tile</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFarmOverview(results, gridArea) {
+  const emptyPct = ((results.emptyCount / gridArea) * 100).toFixed(1);
+  const logPct = ((results.logCount / gridArea) * 100).toFixed(1);
+  const treePct = ((results.treeCount / gridArea) * 100).toFixed(1);
+
+  let html = `
+    <div class="results-section" style="margin-top:14px">
+      <h3>📋 FARM OVERVIEW</h3>
+      <div class="stat-row">
+        <span class="stat-label">Empty Space</span>
+        <span class="stat-value">${results.emptyCount} (${emptyPct}%)</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Mushroom Logs</span>
+        <span class="stat-value">${results.logCount} (${logPct}%)</span>
+      </div>
+  `;
+
+  if (results.treeCount > 0) {
+    html += `
+      <div class="stat-row vertical">
+        <span class="stat-label" style="margin-bottom: 4px; display: flex; justify-content: space-between; width: 100%;">
+          <span>Trees</span>
+          <span class="stat-value">${results.treeCount} (${treePct}%)</span>
+        </span>
+        <div style="padding-left: 10px; width: 100%;">
+    `;
+    for (const [tType, tCount] of Object.entries(results.treeCountsByType || {})) {
+      const tInfo = TREE_TYPES[tType];
+      if (tInfo) {
+        html += `
+          <div class="stat-row mini">
+            <span class="stat-label">
+              <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
+            </span>
+            <span class="stat-value">${tCount}</span>
           </div>
-        </div>
-      `;
+        `;
+      }
     }
-
-    if (results.logCount > 0) {
-      const goldPerDay = results.totalGoldPerYear / DAYS_PER_YEAR;
-      const gridArea = results.gridArea || (state.gridWidth * state.gridHeight);
-
-      html += `
-      <div class="section-header">
-        🍄 MUSHROOM LOGS
-      </div>
-      <div class="gold-summary">
-        <div class="big-number">${formatGold(results.totalGoldPerHarvest)}</div>
-        <div class="big-label">Expected gold per harvest</div>
-        <div style="font-size:0.85rem; color:var(--text-secondary); margin-top:6px; text-align:center;">${formatGold(results.totalGoldPerHarvest / gridArea)} per tile</div>
-      </div>
-      <div style="display:flex; gap:12px; margin-bottom:16px;">
-        <div class="gold-summary" style="flex:1; margin-bottom:0; padding:16px 12px;">
-          <div class="big-number" style="font-size:1.3rem;">${formatGold(goldPerDay)}</div>
-          <div class="big-label" style="font-size:0.7rem;">Gold / Day</div>
-          <div class="stat-subtext">${formatGold(goldPerDay / gridArea)} / tile</div>
-        </div>
-        <div class="gold-summary" style="flex:1; margin-bottom:0; padding:16px 12px;">
-          <div class="big-number" style="font-size:1.3rem;">${formatGold(results.totalGoldPerYear)}</div>
-          <div class="big-label" style="font-size:0.7rem;">Gold / Year</div>
-          <div class="stat-subtext">${formatGold(results.totalGoldPerYear / gridArea)} / tile</div>
+    html += `
         </div>
       </div>
     `;
+  }
 
-      const emptyPct = ((results.emptyCount / gridArea) * 100).toFixed(1);
-      const logPct = ((results.logCount / gridArea) * 100).toFixed(1);
-      const treePct = ((results.treeCount / gridArea) * 100).toFixed(1);
+  html += `
+      <div class="stat-row">
+        <span class="stat-label">Avg. harvest interval</span>
+        <span class="stat-value">${results.avgCycleDays.toFixed(1)} days</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Harvests / year</span>
+        <span class="stat-value">${results.totalHarvests}</span>
+      </div>
+    </div>
+  `;
+  return html;
+}
 
-      html += `
-      <div class="results-section" style="margin-top:14px">
-        <h3>📋 FARM OVERVIEW</h3>
-        <div class="stat-row">
-          <span class="stat-label">Empty Space</span>
-          <span class="stat-value">${results.emptyCount} (${emptyPct}%)</span>
+function renderMushroomMix(results, gridArea) {
+  const aggTypeProbs = { common: 0, red: 0, morel: 0, chanterelle: 0, purple: 0 };
+  let aggExpectedQty = 0;
+
+  for (const log of results.logs) {
+    for (const [mtype, prob] of Object.entries(log.typeProbs)) {
+      aggTypeProbs[mtype] += prob * log.expectedQty;
+    }
+    aggExpectedQty += log.expectedQty;
+  }
+
+  let html = `
+    <div class="results-section">
+      <h3>🍄 MUSHROOM MIX (AVG/HARVEST)</h3>
+  `;
+
+  for (const [mtype, data] of Object.entries(MUSHROOM_DATA)) {
+    const count = aggTypeProbs[mtype];
+    const pct = aggExpectedQty > 0 ? (count / aggExpectedQty * 100) : 0;
+    html += `
+      <div class="prob-bar-container">
+        <div class="prob-bar-label">
+          <span class="name"><img src="${data.emoji}" class="result-icon"> ${data.name}</span>
+          <span class="pct">${count.toFixed(1)} (${pct.toFixed(1)}%)</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Mushroom Logs</span>
-          <span class="stat-value">${results.logCount} (${logPct}%)</span>
+        <div class="prob-bar">
+          <div class="prob-bar-fill ${mtype}" style="width:${pct}%"></div>
         </div>
+      </div>
     `;
+  }
 
-      if (results.treeCount > 0) {
-        html += `
-        <div class="stat-row vertical">
-          <span class="stat-label" style="margin-bottom: 4px; display: flex; justify-content: space-between; width: 100%;">
-            <span>Trees</span>
-            <span class="stat-value">${results.treeCount} (${treePct}%)</span>
-          </span>
-          <div style="padding-left: 10px; width: 100%;">
-      `;
-        for (const [tType, tCount] of Object.entries(results.treeCountsByType || {})) {
-          const tInfo = TREE_TYPES[tType];
-          if (tInfo) {
-            html += `
-            <div class="stat-row mini">
-              <span class="stat-label">
-                <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
-              </span>
-              <span class="stat-value">${tCount}</span>
-            </div>
-          `;
-          }
-        }
-        html += `
+  html += `
+      <div class="stat-row" style="margin-top:6px">
+        <span class="stat-label">Total mushrooms / harvest</span>
+        <span class="stat-value">${aggExpectedQty.toFixed(1)}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Mushrooms / tile</span>
+        <span class="stat-value">${(aggExpectedQty / gridArea).toFixed(2)}</span>
+      </div>
+    </div>
+  `;
+  return html;
+}
+
+function renderProcessingRequirements(results) {
+  const bypassedItems = [];
+  for (const [mtype, proc] of Object.entries(state.processing)) {
+    if (proc === 'raw' || mtype === 'red') continue;
+
+    const bypassedQualities = [];
+    for (let q = 0; q < 4; q++) {
+      const decision = getProcessingDecision(mtype, q, proc, state.artisanProfession);
+      if (decision.actualProc === 'raw') {
+        bypassedQualities.push(QUALITY_NAMES[q]);
+      }
+    }
+    if (bypassedQualities.length > 0) {
+      bypassedItems.push(`${MUSHROOM_DATA[mtype].name} (${bypassedQualities.join(', ')})`);
+    }
+  }
+
+  let bypassMsg = `* Minimum machines needed to process one harvest before the next one is ready.<br/>`;
+  bypassMsg += `* Red Mushrooms cannot be processed.`;
+  if (bypassedItems.length > 0) {
+    bypassMsg += `<br/>* Excluded (more profitable to sell raw): <strong>${bypassedItems.join('; ')}</strong>.`;
+  }
+
+  return `
+    <div class="results-section">
+      <h3>🛠️ REQUIRED PROCESSING</h3>
+      <div class="stat-row">
+        <span class="stat-label">Dehydrators</span>
+        <span class="stat-value" style="color:var(--text-accent);">${results.dehydratorsRequired}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Preserves Jars</span>
+        <span class="stat-value" style="color:var(--text-accent);">${results.jarsRequired}</span>
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:8px; line-height:1.4;">
+        ${bypassMsg}
+      </div>
+    </div>
+  `;
+}
+
+function renderPerLogDetails(results) {
+  let html = `
+    <details class="results-section" style="margin-top:14px; cursor:pointer;">
+      <summary>
+        <span>📍 PER-LOG DETAILS</span>
+      </summary>
+      <div style="margin-top:16px; cursor:default; display:flex; flex-direction:column; gap:8px;">
+  `;
+
+  const logGroups = {};
+  for (const log of results.logs) {
+    const sortedTrees = Object.keys(log.nearbyTreeCounts || {}).sort().map(k => `${k}:${log.nearbyTreeCounts[k]}`).join(',');
+    const sig = `${log.totalTrees}-${log.mossyCount}-${JSON.stringify(log.typeProbs)}-${sortedTrees}`;
+    if (!logGroups[sig]) {
+      logGroups[sig] = { count: 0, sampleLog: log, coords: [] };
+    }
+    logGroups[sig].count++;
+    logGroups[sig].coords.push(`(${log.row},${log.col})`);
+  }
+
+  const groups = Object.values(logGroups);
+  groups.sort((a, b) => b.sampleLog.logGoldPerHarvest - a.sampleLog.logGoldPerHarvest);
+
+  for (let i = 0; i < groups.length; i++) {
+    const group = groups[i];
+    const log = group.sampleLog;
+    const multi = group.count > 1;
+    const logIcon = `<img src="assets/Mushroom_Log.png" alt="Log" style="height: 2.4em; width: auto; vertical-align: middle; margin-right: 6px; image-rendering: pixelated; margin-top: -4px;">`;
+    const title = multi ? `${logIcon}${group.count} Logs` : `${logIcon}Log ${group.coords[0]}`;
+
+    html += `
+      <div class="log-detail" id="log-detail-${i}">
+        <div class="log-detail-header" onclick="toggleLogDetail(${i})">
+          <span>${title} — ${log.totalTrees} trees — ${formatGold(log.logGoldPerHarvest)}/harvest ${multi ? 'each' : ''}</span>
+          <span class="chevron">▶</span>
+        </div>
+        <div class="log-detail-body">
+          <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
+            <strong>Located at:</strong> ${group.coords.join(', ')}
           </div>
-        </div>
-      `;
-      }
-
-      html += `
-        <div class="stat-row">
-          <span class="stat-label">Avg. harvest interval</span>
-          <span class="stat-value">${results.avgCycleDays.toFixed(1)} days</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Harvests / year</span>
-          <span class="stat-value">${results.totalHarvests}</span>
-        </div>
-      </div>
+          <div class="stat-row vertical">
+            <span class="stat-label">Nearby trees: ${log.totalTrees} (${log.mossyCount} Mossy)</span>
+            <div style="padding-left: 10px; width: 100%; margin-top: 4px;">
+              ${Object.entries(log.nearbyTreeCounts || {}).map(([tType, tCount]) => {
+                const tInfo = TREE_TYPES[tType];
+                if (!tInfo) return '';
+                return `
+                  <div class="stat-row mini">
+                    <span class="stat-label">
+                      <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
+                    </span>
+                    <span class="stat-value">${tCount}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Qty (min–max)</span>
+            <span class="stat-value">${log.qtyLow}–${log.qtyHigh} (avg ${log.expectedQty.toFixed(1)})</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Quality upgrade chance</span>
+            <span class="stat-value">${(log.upgradeChance * 100).toFixed(1)}%</span>
+          </div>
+          <div style="margin-top:6px">
+            <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:4px">Quality distribution:</div>
+            <div class="quality-row">
     `;
+    for (let q = 0; q < 4; q++) {
+      html += `<span class="quality-badge ${QUALITY_CLASSES[q]}">${QUALITY_NAMES[q]} ${(log.qualProbs[q] * 100).toFixed(1)}%</span>`;
+    }
+    html += `</div></div>`;
 
-      const aggTypeProbs = { common: 0, red: 0, morel: 0, chanterelle: 0, purple: 0 };
-      let aggExpectedQty = 0;
-
-      for (const log of results.logs) {
-        for (const [mtype, prob] of Object.entries(log.typeProbs)) {
-          aggTypeProbs[mtype] += prob * log.expectedQty;
-        }
-        aggExpectedQty += log.expectedQty;
-      }
-
+    html += `<div style="margin-top:6px">`;
+    for (const [mtype, prob] of Object.entries(log.typeProbs)) {
+      if (prob === 0) continue;
+      const data = MUSHROOM_DATA[mtype];
       html += `
-      <div class="results-section">
-        <h3>🍄 MUSHROOM MIX (AVG/HARVEST)</h3>
-    `;
-
-      for (const [mtype, data] of Object.entries(MUSHROOM_DATA)) {
-        const count = aggTypeProbs[mtype];
-        const pct = aggExpectedQty > 0 ? (count / aggExpectedQty * 100) : 0;
-        html += `
         <div class="prob-bar-container">
           <div class="prob-bar-label">
             <span class="name"><img src="${data.emoji}" class="result-icon"> ${data.name}</span>
-            <span class="pct">${count.toFixed(1)} (${pct.toFixed(1)}%)</span>
+            <span class="pct">${(prob * 100).toFixed(1)}%</span>
           </div>
-          <div class="prob-bar">
-            <div class="prob-bar-fill ${data.color}" style="width:${pct}%"></div>
-          </div>
+          <div class="prob-bar"><div class="prob-bar-fill ${mtype}" style="width:${prob * 100}%"></div></div>
         </div>
       `;
-      }
+    }
+    html += `</div></div></div>`;
+  }
+  html += `</div></details>`;
+  return html;
+}
 
-      html += `
-        <div class="stat-row" style="margin-top:6px">
-          <span class="stat-label">Total mushrooms / harvest</span>
-          <span class="stat-value">${aggExpectedQty.toFixed(1)}</span>
+function renderTappersSummary(results) {
+  let html = `
+    <div class="section-header">
+      🍯 TAPPERS
+    </div>
+    <div class="results-section">
+  `;
+
+  for (const [key, stats] of Object.entries(results.tapperBreakdown)) {
+    html += `
+      <div class="stat-row" style="align-items: flex-start; flex-direction: column; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; width: 100%;">
+          <span class="stat-label"><strong>${stats.tapperCount}x</strong> ${key}</span>
+          <span class="stat-value">${formatGold(stats.totalGold)}</span>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Mushrooms / tile</span>
-          <span class="stat-value">${(aggExpectedQty / gridArea).toFixed(2)}</span>
-        </div>
-      </div>
-    `;
-
-      const bypassedItems = [];
-      for (const [mtype, proc] of Object.entries(state.processing)) {
-        if (proc === 'raw' || mtype === 'red') continue;
-
-        const bypassedQualities = [];
-        for (let q = 0; q < 4; q++) {
-          const decision = getProcessingDecision(mtype, q, proc, state.artisanProfession);
-          if (decision.actualProc === 'raw') {
-            bypassedQualities.push(QUALITY_NAMES[q]);
-          }
-        }
-        if (bypassedQualities.length > 0) {
-          bypassedItems.push(`${MUSHROOM_DATA[mtype].name} (${bypassedQualities.join(', ')})`);
-        }
-      }
-
-      let bypassMsg = `* Minimum machines needed to process one harvest before the next one is ready.<br/>`;
-      bypassMsg += `* Red Mushrooms cannot be processed.`;
-      if (bypassedItems.length > 0) {
-        bypassMsg += `<br/>* Excluded (more profitable to sell raw): <strong>${bypassedItems.join('; ')}</strong>.`;
-      }
-
-      html += `
-      <div class="results-section">
-        <h3>🛠️ REQUIRED PROCESSING</h3>
-        <div class="stat-row">
-          <span class="stat-label">Dehydrators</span>
-          <span class="stat-value" style="color:var(--text-accent);">${results.dehydratorsRequired}</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Preserves Jars</span>
-          <span class="stat-value" style="color:var(--text-accent);">${results.jarsRequired}</span>
-        </div>
-        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:8px; line-height:1.4;">
-          ${bypassMsg}
+        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
+          Produces: ${stats.totalHarvestsPerYear}x ${stats.productName} / Year
         </div>
       </div>
     `;
+  }
 
-      // ── Per-Log Details ──
-      html += `
-      <details class="results-section" style="margin-top:14px; cursor:pointer;">
-        <summary>
-          <span>📍 PER-LOG DETAILS</span>
-        </summary>
-        <div style="margin-top:16px; cursor:default; display:flex; flex-direction:column; gap:8px;">
-    `;
-
-      const logGroups = {};
-      for (const log of results.logs) {
-        const sortedTrees = Object.keys(log.nearbyTreeCounts || {}).sort().map(k => `${k}:${log.nearbyTreeCounts[k]}`).join(',');
-        const sig = `${log.totalTrees}-${log.mossyCount}-${JSON.stringify(log.typeProbs)}-${sortedTrees}`;
-        if (!logGroups[sig]) {
-          logGroups[sig] = { count: 0, sampleLog: log, coords: [] };
-        }
-        logGroups[sig].count++;
-        logGroups[sig].coords.push(`(${log.row},${log.col})`);
-      }
-
-      const groups = Object.values(logGroups);
-      groups.sort((a, b) => b.sampleLog.logGoldPerHarvest - a.sampleLog.logGoldPerHarvest);
-
-      for (let i = 0; i < groups.length; i++) {
-        const group = groups[i];
-        const log = group.sampleLog;
-        const multi = group.count > 1;
-        const logIcon = `<img src="assets/Mushroom_Log.png" alt="Log" style="height: 2.4em; width: auto; vertical-align: middle; margin-right: 6px; image-rendering: pixelated; margin-top: -4px;">`;
-        const title = multi ? `${logIcon}${group.count} Logs` : `${logIcon}Log ${group.coords[0]}`;
-
-        html += `
-        <div class="log-detail" id="log-detail-${i}">
-          <div class="log-detail-header" onclick="toggleLogDetail(${i})">
-            <span>${title} — ${log.totalTrees} trees — ${formatGold(log.logGoldPerHarvest)}/harvest ${multi ? 'each' : ''}</span>
-            <span class="chevron">▶</span>
-          </div>
-          <div class="log-detail-body">
-            <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
-              <strong>Located at:</strong> ${group.coords.join(', ')}
-            </div>
-            <div class="stat-row vertical">
-              <span class="stat-label">Nearby trees: ${log.totalTrees} (${log.mossyCount} Mossy)</span>
-              <div style="padding-left: 10px; width: 100%; margin-top: 4px;">
-                ${Object.entries(log.nearbyTreeCounts || {}).map(([tType, tCount]) => {
-          const tInfo = TREE_TYPES[tType];
-          if (!tInfo) return '';
-          return `
-                    <div class="stat-row mini">
-                      <span class="stat-label">
-                        <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
-                      </span>
-                      <span class="stat-value">${tCount}</span>
-                    </div>
-                  `;
-        }).join('')}
-              </div>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">Qty (min–max)</span>
-              <span class="stat-value">${log.qtyLow}–${log.qtyHigh} (avg ${log.expectedQty.toFixed(1)})</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">Quality upgrade chance</span>
-              <span class="stat-value">${(log.upgradeChance * 100).toFixed(1)}%</span>
-            </div>
-            <div style="margin-top:6px">
-              <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:4px">Quality distribution:</div>
-              <div class="quality-row">
-      `;
-        for (let q = 0; q < 4; q++) {
-          html += `<span class="quality-badge ${QUALITY_CLASSES[q]}">${QUALITY_NAMES[q]} ${(log.qualProbs[q] * 100).toFixed(1)}%</span>`;
-        }
-        html += `</div></div>`;
-
-        html += `<div style="margin-top:6px">`;
-        for (const [mtype, prob] of Object.entries(log.typeProbs)) {
-          if (prob === 0) continue;
-          const data = MUSHROOM_DATA[mtype];
-          html += `
-          <div class="prob-bar-container">
-            <div class="prob-bar-label">
-              <span class="name"><img src="${data.emoji}" class="result-icon"> ${data.name}</span>
-              <span class="pct">${(prob * 100).toFixed(1)}%</span>
-            </div>
-            <div class="prob-bar"><div class="prob-bar-fill ${data.color}" style="width:${prob * 100}%"></div></div>
-          </div>
-        `;
-        }
-        html += `</div></div></div>`;
-      }
-      html += `</div></details>`;
-    } // End of logCount > 0 block
-
-    // ── Render Tappers ──
-    if (hasTappers) {
-      html += `
-      <div class="section-header">
-        🍯 TAPPERS
+  html += `
+      <div class="stat-row" style="margin-top:8px; padding-top:4px;">
+        <span class="stat-label"><strong>Tapper Gold / Year</strong></span>
+        <span class="stat-value" style="color:var(--text-accent);"><strong>${formatGold(results.totalTapperGoldPerYear)}</strong></span>
       </div>
-      <div class="results-section">
-    `;
-
-      for (const [key, stats] of Object.entries(results.tapperBreakdown)) {
-        html += `
-        <div class="stat-row" style="align-items: flex-start; flex-direction: column; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-          <div style="display: flex; justify-content: space-between; width: 100%;">
-            <span class="stat-label"><strong>${stats.tapperCount}x</strong> ${key}</span>
-            <span class="stat-value">${formatGold(stats.totalGold)}</span>
-          </div>
-          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
-            Produces: ${stats.totalHarvestsPerYear}x ${stats.productName} / Year
-          </div>
-        </div>
-      `;
-      }
-
-      html += `
-        <div class="stat-row" style="margin-top:8px; padding-top:4px;">
-          <span class="stat-label"><strong>Tapper Gold / Year</strong></span>
-          <span class="stat-value" style="color:var(--text-accent);"><strong>${formatGold(results.totalTapperGoldPerYear)}</strong></span>
-        </div>
-      </div>
-    `;
-    } // End of if (hasTappers)
-  } // End of else block
-
-  resultsContent.innerHTML = html;
+    </div>
+  `;
+  return html;
 }
 
 function toggleLogDetail(i) {

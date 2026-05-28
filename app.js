@@ -72,8 +72,9 @@ function updateCalculation() {
 function handleCellClick(r, c) {
   const tool = state.selectedTool;
   if (!tool) return;
-
   const cell = state.grid[r][c];
+  
+  let changed = false;
 
   if (tool === 'eraser') {
     if (cell.type !== CELL_EMPTY) {
@@ -82,65 +83,35 @@ function handleCellClick(r, c) {
         state.hoveredLog = null;
       }
       state.grid[r][c] = { type: CELL_EMPTY, treeType: null, hasMoss: false };
-      updateSingleCell(r, c);
-      mirrorCellToTileableGrid(r, c);
-      saveStateData();
-      updateCalculation();
+      changed = true;
     }
-    return;
-  }
-
-  if (tool === 'mushlog') {
-    if (cell.type === CELL_MUSHLOG) return; // already placed
-    state.grid[r][c] = { type: CELL_MUSHLOG, treeType: null, hasMoss: false };
-    updateSingleCell(r, c);
-    mirrorCellToTileableGrid(r, c);
-    saveStateData();
-    updateCalculation();
-    return;
-  }
-
-  // Moss tool
-  if (tool === 'moss') {
+  } else if (tool === 'mushlog') {
+    if (cell.type !== CELL_MUSHLOG) {
+      state.grid[r][c] = { type: CELL_MUSHLOG, treeType: null, hasMoss: false };
+      changed = true;
+    }
+  } else if (tool === 'moss') {
     if (cell.type === CELL_TREE && !TREE_TYPES[cell.treeType].noMoss) {
       state.grid[r][c].hasMoss = !state.grid[r][c].hasMoss;
-      updateSingleCell(r, c);
-      mirrorCellToTileableGrid(r, c);
-      saveStateData();
-      updateCalculation();
+      changed = true;
     }
-    return;
-  }
-
-  // Tapper tools
-  if (tool === 'tapper' || tool === 'heavy_tapper') {
-    if (cell.type === CELL_TREE) {
-      const treeInfo = TREE_TYPES[cell.treeType];
-      if (!treeInfo.tapper) return; // Cannot be tapped
-
-      if (cell.tapper === tool) {
-        state.grid[r][c].tapper = null;
-      } else {
-        state.grid[r][c].tapper = tool;
+  } else if (tool === 'tapper' || tool === 'heavy_tapper') {
+    if (cell.type === CELL_TREE && TREE_TYPES[cell.treeType].tapper) {
+      state.grid[r][c].tapper = (cell.tapper === tool) ? null : tool;
+      changed = true;
+    }
+  } else if (TREE_TYPES[tool]) {
+    if (cell.type !== CELL_TREE || cell.treeType !== tool) {
+      if (state.hoveredLog && state.hoveredLog.row === r && state.hoveredLog.col === c) {
+        highlightRange(r, c, false);
+        state.hoveredLog = null;
       }
-      updateSingleCell(r, c);
-      mirrorCellToTileableGrid(r, c);
-      saveStateData();
-      updateCalculation();
+      state.grid[r][c] = { type: CELL_TREE, treeType: tool, hasMoss: false, tapper: null };
+      changed = true;
     }
-    return;
   }
 
-  // Tree placement
-  if (TREE_TYPES[tool]) {
-    if (cell.type === CELL_TREE && cell.treeType === tool) {
-      return;
-    }
-    if (state.hoveredLog && state.hoveredLog.row === r && state.hoveredLog.col === c) {
-      highlightRange(r, c, false);
-      state.hoveredLog = null;
-    }
-    state.grid[r][c] = { type: CELL_TREE, treeType: tool, hasMoss: false, tapper: null };
+  if (changed) {
     updateSingleCell(r, c);
     mirrorCellToTileableGrid(r, c);
     saveStateData();

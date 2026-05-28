@@ -3,11 +3,11 @@
 // ═══════════════════════════════════════════════════════════════
 
 const MUSHROOM_DATA = {
-  common: { name: 'Common Mushroom', basePrice: 40, color: 'common', emoji: 'assets/Common_Mushroom.png' },
-  red: { name: 'Red Mushroom', basePrice: 75, color: 'red', emoji: 'assets/Red_Mushroom.png' },
-  morel: { name: 'Morel', basePrice: 150, color: 'morel', emoji: 'assets/Morel.png' },
-  chanterelle: { name: 'Chanterelle', basePrice: 160, color: 'chanterelle', emoji: 'assets/Chanterelle.png' },
-  purple: { name: 'Purple Mushroom', basePrice: 250, color: 'purple', emoji: 'assets/Purple_Mushroom.png' },
+  common: { name: 'Common Mushroom', basePrice: 40, emoji: 'assets/Common_Mushroom.png' },
+  red: { name: 'Red Mushroom', basePrice: 75, emoji: 'assets/Red_Mushroom.png' },
+  morel: { name: 'Morel', basePrice: 150, emoji: 'assets/Morel.png' },
+  chanterelle: { name: 'Chanterelle', basePrice: 160, emoji: 'assets/Chanterelle.png' },
+  purple: { name: 'Purple Mushroom', basePrice: 250, emoji: 'assets/Purple_Mushroom.png' },
 };
 
 // Quality multipliers: normal=1x, silver=1.25x, gold=1.5x, iridium=2x
@@ -191,14 +191,33 @@ function calculateMushroomLog(grid, logR, logC, gridW, gridH, config) {
 }
 
 function calculateFarm(config) {
-  const grid = config.grid;
-  const w = config.gridWidth;
-  const h = config.gridHeight;
-  const tileable = config.tileableMode;
-  const wrapAround = config.wrapAround;
+  const { emptyCount, treeCount, treeCountsByType, rawLogs } = analyzeMushroomGrid(config);
+  const { avgCycleDays, totalHarvests } = calculateHarvestTiming(config);
+  
+  const logEcon = calculateLogEconomics(rawLogs, avgCycleDays, config);
+  const tapperEcon = calculateTapperEconomics(config, avgCycleDays);
 
-  // Find all mushroom logs and calculate area stats
-  const logs = [];
+  return {
+    emptyCount,
+    treeCount,
+    treeCountsByType,
+    gridArea: config.gridWidth * config.gridHeight,
+    logs: logEcon.perLogResults,
+    logCount: rawLogs.length,
+    totalGoldPerHarvest: logEcon.totalGoldPerHarvest,
+    totalHarvests,
+    avgCycleDays,
+    totalGoldPerYear: logEcon.totalGoldPerHarvest * totalHarvests,
+    dehydratorsRequired: logEcon.dehydratorsRequired,
+    jarsRequired: logEcon.jarsRequired,
+    totalTapperGoldPerYear: tapperEcon.totalTapperGoldPerYear,
+    tapperBreakdown: tapperEcon.tapperBreakdown,
+  };
+}
+
+function analyzeMushroomGrid(config) {
+  const { grid, gridWidth: w, gridHeight: h } = config;
+  const rawLogs = [];
   let emptyCount = 0;
   let treeCount = 0;
   const treeCountsByType = {};
@@ -213,27 +232,31 @@ function calculateFarm(config) {
         treeCountsByType[cell.treeType] = (treeCountsByType[cell.treeType] || 0) + 1;
       } else if (cell.type === CELL_MUSHLOG) {
         const result = calculateMushroomLog(grid, r, c, w, h, config);
-        logs.push({ row: r, col: c, ...result });
+        rawLogs.push({ row: r, col: c, ...result });
       }
     }
   }
 
-  // Harvest timing
+  return { emptyCount, treeCount, treeCountsByType, rawLogs };
+}
+
+function calculateHarvestTiming(config) {
   let rainProb = config.farmLocation === 'ginger' ? RAIN_PROB_GINGER : config.farmLocation === 'desert' ? 0 : RAIN_PROB_MAIN;
   if (config.useRainTotems && config.farmLocation !== 'desert') {
     rainProb = RAIN_PROB_TOTEM;
   }
-
   const avgCycleDays = BASE_HARVEST_CYCLE_DAYS / (1 + rainProb);
   const totalHarvests = Math.floor(DAYS_PER_YEAR / avgCycleDays);
+  return { avgCycleDays, totalHarvests };
+}
 
-  // Compute gold
+function calculateLogEconomics(rawLogs, avgCycleDays, config) {
   let totalGoldPerHarvest = 0;
   let totalDehydratorMushrooms = 0;
   let totalPickleMushrooms = 0;
   const perLogResults = [];
 
-  for (const log of logs) {
+  for (const log of rawLogs) {
     let logGoldPerHarvest = 0;
     const breakdown = {};
 
@@ -284,7 +307,11 @@ function calculateFarm(config) {
   const dehydratorsRequired = Math.ceil(totalDehydratorDays / avgCycleDays);
   const jarsRequired = Math.ceil(totalPickleDays / avgCycleDays);
 
-  // ── Calculate Tapper Yield ──
+  return { perLogResults, totalGoldPerHarvest, dehydratorsRequired, jarsRequired };
+}
+
+function calculateTapperEconomics(config, avgCycleDays) {
+  const { grid, gridWidth: w, gridHeight: h } = config;
   let totalTapperGoldPerYear = 0;
   const tapperBreakdown = {};
 
@@ -328,20 +355,5 @@ function calculateFarm(config) {
     }
   }
 
-  return {
-    emptyCount,
-    treeCount,
-    treeCountsByType,
-    gridArea: w * h,
-    logs: perLogResults,
-    logCount: logs.length,
-    totalGoldPerHarvest,
-    totalHarvests,
-    avgCycleDays,
-    totalGoldPerYear: totalGoldPerHarvest * totalHarvests,
-    dehydratorsRequired,
-    jarsRequired,
-    totalTapperGoldPerYear,
-    tapperBreakdown,
-  };
+  return { totalTapperGoldPerYear, tapperBreakdown };
 }
