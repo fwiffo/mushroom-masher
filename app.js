@@ -1224,7 +1224,7 @@ function populateMathModal(results) {
       <li><strong>Base cycle:</strong> 4 days</li>
       <li><strong>Location:</strong> ${loc} (average ${rainProbStr}% chance of rain per day)
         ${state.farmLocation === 'main' ? `
-          <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; list-style-type:circle; opacity:0.85;">
+          <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
             <li>Spring and fall have a flat 18.3% chance of rain.</li>
             <li>Summer rain odds increase daily, plus 1 guaranteed Green Rain day.</li>
             <li>Winter never has rain naturally.</li>
@@ -1242,14 +1242,14 @@ function populateMathModal(results) {
 
     <h3>2. Quantity (Per Log)</h3>
     <ul>
-      <li><strong>Mechanic:</strong> The game counts Wild Trees in a 7×7 square around the log.</li>
+      <li><strong>Mechanic:</strong> The game counts wild trees in a 7×7 square around the log.</li>
       <li><strong>Formula:</strong> <code>min(5, max(1, floor(NearbyTrees / 2) * random(1 or 2)))</code></li>
-      <li><strong>Takeaway:</strong> You need exactly <strong>10 trees</strong> in range to guarantee 5 mushrooms (the maximum).</li>
+      <li><strong>10 trees</strong> are required to guarantee the maximum of 5 mushrooms per harvest.</li>
     </ul>
 
     <h3>3. Quality (Per Log)</h3>
     <ul>
-      <li><strong>Mechanic:</strong> Quality is determined by NearbyTrees + MossyTrees (mossy trees count twice).</li>
+      <li><strong>Mechanic:</strong> Quality is determined by NearbyTrees + MossyTrees (trees with moss count twice).</li>
       <li><strong>Formula:</strong> Upgrade chance is <code>(NearbyTrees + MossyTrees) / 40</code> (max 100%).</li>
       <li><strong>Rolls:</strong> That probability is rolled repeatedly until it fails or reaches iridium quality.</li>
       <li><strong>Example:</strong> Consider a log surrounded by 10 trees, 6 of which are mossy. The odds for quality upgrades are <code>(10 + 6) / 40 = 40%</code>. 60% of the time the output will be standard quality, 24% will be silver, 9.6% will be gold, and 6.4% will be iridium.</li>
@@ -1260,7 +1260,7 @@ function populateMathModal(results) {
       <li><strong>Mechanic:</strong> The game builds a pool of possible mushrooms based on nearby trees.</li>
       <li><strong>Step 1 (Basic Pool):</strong> Adds <code>max(1, floor(NearbyTrees * 0.75))</code> entries from a base distribution (Common 80.75%, Red 14.25%, Purple 5%).</li>
       <li><strong>Step 2 (Tree Bonus):</strong> Adds 1 entry per mature tree based on its type:
-        <ul>
+        <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
           <li><strong>Oak:</strong> 100% Morel</li>
           <li><strong>Pine:</strong> 100% Chanterelle</li>
           <li><strong>Mystic:</strong> 100% Purple</li>
@@ -1270,6 +1270,22 @@ function populateMathModal(results) {
       </li>
       <li><strong>Step 3:</strong> One type is chosen randomly from the combined pool.</li>
     </ul>
+
+    <h3>Mushroom Logs Are Machines</h3>
+    <ul>
+      <li><strong>Mushroom Logs As Machines:</strong> Mushroom logs are implemented as farm machines like kegs, furnaces, etc. and share many of the same behaviors.</li>
+      <li><strong>Harvest:</strong> All the mushrooms for each harvest are of the same type and quality. This tool gives the averages over all possibilities.</li>
+      <li><strong>When:</strong> Counterintuitively, these determinations are made at the time of the <em>previous harvest</em> (or when the log was placed down for the first harvest). As such, the types of mushrooms produced may be inconsistent with the types of surrounding trees, since they may have been immature at the time the products were deterimined.</li>
+      <li><strong>Wiki references:</strong>
+      <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
+        <li><strong><a href="https://stardewvalleywiki.com/Mushroom_Log" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Mushroom Log</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Moss" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Moss</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Trees" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Trees</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Weather" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Weather</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Green_Rain" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Green_Rain</a></strong></li>
+      </ul>
+    </li>
+  </ul>
   `;
 
   modalBody.innerHTML = html;

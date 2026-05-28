@@ -103,11 +103,9 @@ This layout is from **[a video by KitaDollx](https://youtu.be/Q3VRj6WaX8U)**.
 
 ![KitaDollx Mushroom Farm Layout](assets/kitadollx-layout.png)
 
-It uses space very efficiently, with just 1/3 spaces empty, which I believe is the minimum possible space for walking with a tileable farm pattern. Fully 50% of the availble space is devoted to mushroom logs. 66.7% of the logs are within range of exactly 10 trees, and 33.3% are within range of exactly 8.
+It uses space very efficiently, with just 1/3 spaces empty, which I believe is the minimum possible space for walking with a tileable farm pattern. Fully 50% of the availble space is devoted to mushroom logs. 66.7% of the logs are within range of exactly 10 trees, and 33.3% are within range of exactly 8. The average log produces 4.83 mushrooms, so the net efficiency is **2.42 mushrooms per tile per harvest**. The average number of trees per log and overall performance are actually slightly *understated* in the video.
 
-The net efficiency is **2.42 mushrooms per tile per harvest**. The average number of trees per log and overall performance are actually slightly *understated* in the video.
-
-It's also simple to build and fast to harvest with purely straight paths.
+It's also a simple layout to build and fast to harvest with purely straight paths.
 
 ### Simple Zig-Zag
 
@@ -121,4 +119,4 @@ This layout [was posted on reddit](https://www.reddit.com/r/StardewValley/commen
 
 ![Log9102 Layout](assets/available-log9102-layout.png)
 
-Impressively, every square in the layout has exactly 10 trees within range. It also maintains only 33.3% empty space, which is difficult without straight pathing. However, the additional trees end up crowding out some logs, which are now only 46.7% of the available area. The net result is an efficiency of **2.33 mushrooms per tile per harvest**. In spite of its hypnotic symmetries, it slightly underperforms simpler layouts (the original reddit post has incorrect numbers for the KitaDollx layout).
+Impressively, every square in the layout has exactly 10 trees within range, so all logs produce 5 mushrooms every harvest. It also maintains only 33.3% empty space, which is difficult without straight pathing. However, the additional trees end up crowding out some logs, which are now only 46.7% of the available area. The net result is an efficiency of **2.33 mushrooms per tile per harvest**. In spite of its hypnotic symmetries, it slightly underperforms simpler layouts (the original reddit post has incorrect numbers for the KitaDollx layout).
