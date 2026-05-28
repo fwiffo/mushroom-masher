@@ -28,8 +28,6 @@ The calculated output of your farm appears in a panel on the right and is update
 - **Per-Log Breakdown:** Expanding the per-log details shows you exactly what each log sees in its 7x7 grid and its specific expected yield, quality breakdown, and mushroom type probabilities.
 - **Required Machinery:** Tells you the minimum number of dehydrators and preserves jars you need to keep up with your specific layout's production rate.
 
----
-
 ## The Math
 
 Calculations are based on documentation in the [Stardew Valley Wiki](https://stardewvalleywiki.com/) for version 1.6. Here is a rough breakdown of the mechanics:
@@ -69,7 +67,7 @@ Each tree contributes both to its own mushroom types, as well as the size of the
 
 ### Mushroom quality
 
-Mushroom quality is determined by the number of nearby trees, and [mossy](https://stardewvalleywiki.com/Moss) trees count twice. The total count is divided by 40 and used as a probability to upgrade quality through repeated random rolls. For example, consider a log surrounded by 10 trees, 6 of which are mossy. The odds for quality upgrades is `(10 + 6) / 40 = 40%`. 60% of the time the output will be standard quality, 24% will be silver, 9.6% will be gold, and 6.4% will be iridium.
+Mushroom quality is determined by the number of nearby trees, and [mossy](https://stardewvalleywiki.com/Moss) trees count twice. The total count is divided by 40 and used as a probability to upgrade quality through repeated random rolls. For example, consider a log surrounded by 10 trees, 6 of which are mossy. The odds for quality upgrades are `(10 + 6) / 40 = 40%`. 60% of the time the output will be standard quality, 24% will be silver, 9.6% will be gold, and 6.4% will be iridium.
 
 ### Mushroom logs are farm machines
 
@@ -83,7 +81,7 @@ tl;dr Using tree fertilizer will improve the quality of mushrooms on your farm v
 
 Tree saplings go through a number of stages, reaching maturity at stage 5. However, the stage continues to advance after maturity (to a maximum of 15) for the purpose of growing moss. Moss can only grow on trees that have reached at least stage 14. Moss growth rates depend on the season and weather, and moss disappears during winter. Harvesting moss sets the tree's growth stage back to 12-(number of moss harvested).
 
-If you apply [tree fertilizer](https://stardewvalleywiki.com/Tree_Fertilizer) to a oak, pine, maple, or green rain tree seed or sapling, it guarantees a 100% chance to advance a growth stage every night. Crucially, **this fertilized status remains permanently on the tree even after it reaches full maturity**. Because the tree remains "fertilized," it continues to apply that 100% daily growth check to the hidden stages. As a result, a tree fertilized as a sapling will regenerate moss much faster than a naturally grown tree. 
+If you apply [tree fertilizer](https://stardewvalleywiki.com/Tree_Fertilizer) to a oak, pine, maple, or green rain tree seed or sapling, it guarantees a 100% chance to advance a growth stage every night. Crucially, **this fertilized status remains permanently on the tree even after it reaches full maturity**. Because the tree remains "fertilized," it continues to apply that 100% daily growth check to the hidden stages. As a result, a tree fertilized as a sapling will regenerate moss much faster than a naturally grown tree.
 
 Tree Fertilizer cannot later be applied to mature trees, so must be applied to a seed or sapling.
 
@@ -96,3 +94,31 @@ Mystic trees can't grow moss, but they're slow growing, so tree fertilizer is st
 ### Tappers
 
 If you equip [tappers](https://stardewvalleywiki.com/Tapper) or heavy tappers, the app calculates expected yearly totals. By default, it uses independent timers for each tree type. If you enable **Sync Tappers**, it limits tapper harvests to align with your mushroom log harvest days to minimize the time spent walking the farm.
+
+## Sample Layouts
+
+### KitaDollx
+
+This layout is from **[a video by KitaDollx](https://youtu.be/Q3VRj6WaX8U)**.
+
+![KitaDollx Mushroom Farm Layout](assets/kitadollx-layout.png)
+
+It uses space very efficiently, with just 1/3 spaces empty, which I believe is the minimum possible space for walking with a tileable farm pattern. Fully 50% of the availble space is devoted to mushroom logs. 66.7% of the logs are within range of exactly 10 trees, and 33.3% are within range of exactly 8.
+
+The net efficiency is **2.42 mushrooms per tile per harvest**. The average number of trees per log and overall performance are actually slightly *understated* in the video.
+
+It's also simple to build and fast to harvest with purely straight paths.
+
+### Simple Zig-Zag
+
+This is similar to the KitaDollx layout, but a bit simpler. It's basically equivalent, with the same knights-move spacing between trees, and **the performance is identical**.
+
+![Simple Zig-Zag Layout](assets/simple-zigzag-layout.png)
+
+### Available-Log9102
+
+This layout [was posted on reddit](https://www.reddit.com/r/StardewValley/comments/1oeunhz/behold_an_underrated_way_to_get_millions_the_best/) by user Available-Log9102.
+
+![Log9102 Layout](assets/available-log9102-layout.png)
+
+Impressively, every square in the layout has exactly 10 trees within range. It also maintains only 33.3% empty space, which is difficult without straight pathing. However, the additional trees end up crowding out some logs, which are now only 46.7% of the available area. The net result is an efficiency of **2.33 mushrooms per tile per harvest**. In spite of its hypnotic symmetries, it slightly underperforms simpler layouts (the original reddit post has incorrect numbers for the KitaDollx layout).

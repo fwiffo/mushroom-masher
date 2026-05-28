@@ -1225,12 +1225,12 @@ function populateMathModal(results) {
       <li><strong>Location:</strong> ${loc} (average ${rainProbStr}% chance of rain per day)
         ${state.farmLocation === 'main' ? `
           <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; list-style-type:circle; opacity:0.85;">
-            <li>Spring & Fall have a flat 18.3% chance of rain.</li>
+            <li>Spring and fall have a flat 18.3% chance of rain.</li>
             <li>Summer rain odds increase daily, plus 1 guaranteed Green Rain day.</li>
             <li>Winter never has rain naturally.</li>
-            <li>Never rains on the 1st day of any season.</li>
+            <li>There is never rain on the 1st day of any season.</li>
             <li>Festival days are always sunny, overriding any weather.</li>
-            <li>Averaging this out over the 112-day year yields exactly 13.56%.</li>
+            <li>Averaging this out over the 112-day year yields approximately 13.56%.</li>
           </ul>
         ` : ''}
       </li>
@@ -1251,23 +1251,24 @@ function populateMathModal(results) {
     <ul>
       <li><strong>Mechanic:</strong> Quality is determined by NearbyTrees + MossyTrees (mossy trees count twice).</li>
       <li><strong>Formula:</strong> Upgrade chance is <code>(NearbyTrees + MossyTrees) / 40</code> (max 100%).</li>
-      <li><strong>Rolls:</strong> The game rolls for Iridium first (chance³), then Gold (chance²), then Silver (chance).</li>
+      <li><strong>Rolls:</strong> That probability is rolled repeatedly until it fails or reaches iridium quality.</li>
+      <li><strong>Example:</strong> Consider a log surrounded by 10 trees, 6 of which are mossy. The odds for quality upgrades are <code>(10 + 6) / 40 = 40%</code>. 60% of the time the output will be standard quality, 24% will be silver, 9.6% will be gold, and 6.4% will be iridium.</li>
     </ul>
 
     <h3>4. Mushroom Types (Per Log)</h3>
     <ul>
       <li><strong>Mechanic:</strong> The game builds a pool of possible mushrooms based on nearby trees.</li>
-      <li><strong>Step 1 (Basic Pool):</strong> Adds <code>max(1, floor(NearbyTrees * 0.75))</code> entries of the basic distribution (Common 80.75%, Red 14.25%, Purple 5%).</li>
+      <li><strong>Step 1 (Basic Pool):</strong> Adds <code>max(1, floor(NearbyTrees * 0.75))</code> entries from a base distribution (Common 80.75%, Red 14.25%, Purple 5%).</li>
       <li><strong>Step 2 (Tree Bonus):</strong> Adds 1 entry per mature tree based on its type:
         <ul>
           <li><strong>Oak:</strong> 100% Morel</li>
           <li><strong>Pine:</strong> 100% Chanterelle</li>
           <li><strong>Mystic:</strong> 100% Purple</li>
           <li><strong>Maple:</strong> 90% Red, 10% Purple</li>
-          <li><strong>Mahogany / Other:</strong> Uses the basic distribution</li>
+          <li><strong>Immature trees, or any other tree types:</strong> Adds another entry from the base distribution</li>
         </ul>
       </li>
-      <li><strong>Result:</strong> It picks one entry randomly from this combined pool. This means the more Oak trees you have, the more heavily the pool is weighted toward Morels.</li>
+      <li><strong>Step 3:</strong> One type is chosen randomly from the combined pool.</li>
     </ul>
   `;
 
@@ -1446,7 +1447,7 @@ function setupEventListeners() {
     resultsContent.innerHTML = `
       <div class="empty-state">
         <div class="icon">🍄</div>
-        <p>Place some mushroom logs and trees on the grid, then click <strong>Calculate Harvest</strong> to see results.</p>
+        <p>Place some mushroom logs and trees on the grid and production will be displayed automatically.</p>
       </div>`;
   });
 
