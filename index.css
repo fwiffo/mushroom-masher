@@ -46,6 +46,8 @@
   --cell-size: 48px;
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-med: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --tiled-layout-border: rgba(46, 128, 69, 0.7);
 }
 
 *,
@@ -176,7 +178,6 @@ h3 {
   width: 24px;
   height: 36px;
   object-fit: contain;
-  image-rendering: pixelated;
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
 }
 
@@ -185,8 +186,8 @@ h3 .header-icon {
 }
 
 .btn-icon {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
   image-rendering: pixelated;
   vertical-align: middle;
@@ -420,7 +421,7 @@ img.result-icon {
 .toggle .slider {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 20px;
   border: 1px solid var(--panel-border);
   transition: all var(--transition-fast);
@@ -565,11 +566,17 @@ img.result-icon {
 
 /* Tile pattern border overlay */
 .grid-cell.tile-border-right {
-  border-right: 2px dashed rgba(251, 191, 36, 0.4);
+  border-right: 2px dashed var(--tiled-layout-border);
+  border-radius: 6px 0 0 6px;
 }
 
 .grid-cell.tile-border-bottom {
-  border-bottom: 2px dashed rgba(251, 191, 36, 0.4);
+  border-bottom: 2px dashed var(--tiled-layout-border);
+  border-radius: 6px 6px 0 0;
+}
+
+.grid-cell.tile-border-right.tile-border-bottom {
+  border-radius: 6px 0 0 0;
 }
 
 /* ── Results ──────────────────────────────────────── */
@@ -592,7 +599,7 @@ img.result-icon {
 }
 
 .section-header {
-  margin: 24px 0 16px 0;
+  margin: 36px 0 4px 0;
   padding-bottom: 8px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
   font-size: 1.1rem;

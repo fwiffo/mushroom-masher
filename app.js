@@ -176,13 +176,16 @@ function handleCellLeave(r, c) {
 
 function initToolbar() {
   $$('.tool-btn').forEach(btn => {
+    if (!btn.dataset.tool) return;
     btn.addEventListener('click', () => {
       const tool = btn.dataset.tool;
       if (state.selectedTool === tool) {
         state.selectedTool = null;
         btn.classList.remove('active');
       } else {
-        $$('.tool-btn').forEach(b => b.classList.remove('active'));
+        $$('.tool-btn').forEach(b => {
+          if (b.dataset.tool) b.classList.remove('active');
+        });
         state.selectedTool = tool;
         btn.classList.add('active');
       }
