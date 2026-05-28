@@ -248,7 +248,7 @@ function renderResults(results) {
       }
 
       html += `
-        <div class="stat-row vertical">
+        <div class="stat-row">
           <span class="stat-label">Avg. harvest interval</span>
           <span class="stat-value">${results.avgCycleDays.toFixed(1)} days</span>
         </div>
@@ -497,15 +497,21 @@ function populateMathModal(results) {
     `;
   } else {
     const loc = state.farmLocation === 'ginger' ? 'Ginger Island' : 'Main Farm';
-    const rainProbPct = state.farmLocation === 'ginger' ? 24 : 13.56;
-    const rainProbStr = state.farmLocation === 'ginger' ? '24' : '13.56';
+    let rainProbPct = state.farmLocation === 'ginger' ? 24 : 13.56;
+    let rainProbStr = state.farmLocation === 'ginger' ? '24' : '13.56';
+    const isTotem = state.useRainTotems;
+
+    if (isTotem) {
+      rainProbPct = 89;
+      rainProbStr = '89';
+    }
 
     html += `
     <h3>1. Harvest Frequency</h3>
     <ul>
       <li><strong>Base cycle:</strong> 4 days</li>
       <li><strong>Location:</strong> ${loc} (average ${rainProbStr}% chance of rain per day)
-        ${state.farmLocation === 'main' ? `
+        ${!isTotem && state.farmLocation === 'main' ? `
           <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
             <li>Spring and fall have a flat 18.3% chance of rain.</li>
             <li>Summer rain odds increase daily, plus 1 guaranteed Green Rain day.</li>
@@ -515,9 +521,15 @@ function populateMathModal(results) {
             <li>Averaging this out over the 112-day year yields approximately 13.56%.</li>
           </ul>
         ` : ''}
+        ${isTotem ? `
+          <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
+            <li>Rain Totems force rain every day except on festival days and the 1st of the season.</li>
+            <li>This averages out to an 89% chance of rain per day over the year.</li>
+          </ul>
+        ` : ''}
       </li>
       <li><strong>Mechanic:</strong> Each day it rains reduces the remaining harvest time by 1 day.</li>
-      <li><strong>Math:</strong> Probability of at least 1 rain day during a 4-day cycle is <code>1 - (1 - ${rainProbStr}%)^4 = ${((1 - Math.pow(1 - (rainProbPct / 100), 4)) * 100).toFixed(2)}%</code>.</li>
+      <li><strong>Math:</strong> The expected progress per day is <code>1 + ${rainProbStr}%</code>. The average days to reach 4 progress is <code>4 / (1 + ${rainProbStr}%)</code>.</li>
       <li><strong>Result:</strong> Average harvest interval is <code>${results.avgCycleDays.toFixed(2)} days</code>.</li>
       <li><strong>Yearly Yield:</strong> 112 days / ${results.avgCycleDays.toFixed(2)} = <code>~${results.totalHarvests} harvests per year</code>.</li>
     </ul>
