@@ -75,22 +75,7 @@ function loadStateData(dataObj) {
     if (data) {
       if (data.gridWidth) state.gridWidth = data.gridWidth;
       if (data.gridHeight) state.gridHeight = data.gridHeight;
-      if (data.grid) {
-        state.grid = data.grid;
-        // Migration for older states (removing 'tree_' prefix)
-        for (let r = 0; r < state.grid.length; r++) {
-          for (let c = 0; c < state.grid[r].length; c++) {
-            if (state.grid[r][c] && typeof state.grid[r][c].treeType === 'string' && state.grid[r][c].treeType.startsWith('tree_')) {
-              state.grid[r][c].treeType = state.grid[r][c].treeType.replace('tree_', '');
-            }
-            if (state.grid[r][c] && state.grid[r][c].tapper === 'normal') {
-              state.grid[r][c].tapper = 'tapper';
-            } else if (state.grid[r][c] && state.grid[r][c].tapper === 'heavy') {
-              state.grid[r][c].tapper = 'heavy_tapper';
-            }
-          }
-        }
-      }
+      if (data.grid) state.grid = data.grid;
       if (data.tileableMode !== undefined) state.tileableMode = data.tileableMode;
       if (data.wrapAround !== undefined) state.wrapAround = data.wrapAround;
       if (data.tileWidth) state.tileWidth = data.tileWidth;
