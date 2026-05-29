@@ -679,7 +679,7 @@ img.result-icon {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 6px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 0.85rem;
 }
@@ -687,7 +687,7 @@ img.result-icon {
 .stat-row.vertical {
   flex-direction: column;
   align-items: flex-start;
-  padding-top: 8px;
+  padding-top: 6px;
   border-top: 1px solid var(--border-color);
 }
 
@@ -801,6 +801,7 @@ details.results-section summary span {
   gap: 8px;
   margin-top: 8px;
   align-items: center;
+  margin-bottom: 12px;
 }
 
 .quality-badge {
@@ -1104,6 +1105,7 @@ details.results-section summary span {
   display: none;
 }
 
-.inspect-mode-active, .inspect-mode-active * {
+.inspect-mode-active,
+.inspect-mode-active * {
   cursor: zoom-in !important;
 }

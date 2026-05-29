@@ -75,8 +75,8 @@ function updateCalculation() {
 
 function handleCellClick(r, c) {
   if (state.inspectMode) {
-    if (state.grid[r][c].type === CELL_MUSHLOG) {
-      inspectLog(r, c);
+    if (state.grid[r][c].type === CELL_MUSHLOG || state.grid[r][c].type === CELL_TREE) {
+      inspectCell(r, c);
     }
     return;
   }
@@ -102,7 +102,7 @@ function handleCellClick(r, c) {
       changed = true;
     }
   } else if (tool === 'moss') {
-    if (cell.type === CELL_TREE && !TREE_TYPES[cell.treeType].noMoss) {
+    if (cell.type === CELL_TREE && TREE_TYPES[cell.treeType].allowsMoss) {
       state.grid[r][c].hasMoss = !state.grid[r][c].hasMoss;
       changed = true;
     }
@@ -123,7 +123,7 @@ function handleCellClick(r, c) {
         if (cell.tapper && TREE_TYPES[tool].tapper) {
           preservedTapper = cell.tapper;
         }
-        if (cell.hasMoss && !TREE_TYPES[tool].noMoss) {
+        if (cell.hasMoss && TREE_TYPES[tool].allowsMoss) {
           preservedMoss = true;
         }
       }

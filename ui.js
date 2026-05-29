@@ -450,9 +450,9 @@ function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
             <span class="stat-label">Nearby trees: ${log.totalTrees} (${log.mossyCount} Mossy)</span>
             <div style="padding-left: 10px; width: 100%; margin-top: 4px;">
               ${Object.entries(log.nearbyTreeCounts || {}).map(([tType, tCount]) => {
-      const tInfo = TREE_TYPES[tType];
-      if (!tInfo) return '';
-      return `
+    const tInfo = TREE_TYPES[tType];
+    if (!tInfo) return '';
+    return `
                   <div class="stat-row mini">
                     <span class="stat-label">
                       <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
@@ -460,7 +460,7 @@ function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
                     <span class="stat-value">${tCount}</span>
                   </div>
                 `;
-    }).join('')}
+  }).join('')}
             </div>
           </div>
           <div class="stat-row">
@@ -479,6 +479,25 @@ function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
     html += `<span class="quality-badge ${QUALITY_CLASSES[q]}">${QUALITY_NAMES[q]} ${(log.qualProbs[q] * 100).toFixed(1)}%</span>`;
   }
   html += `</div></div>`;
+
+  const avgCycleDays = state.lastResults ? state.lastResults.avgCycleDays : 0;
+  const totalHarvests = state.lastResults ? state.lastResults.totalHarvests : 0;
+  if (avgCycleDays && totalHarvests) {
+    html += `
+      <div class="stat-row">
+        <span class="stat-label">Yield per harvest:</span>
+        <span class="stat-value" style="color:var(--text-accent);">${formatGold(log.logGoldPerHarvest)}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Harvest cycle:</span>
+        <span class="stat-value">${avgCycleDays.toFixed(1)} days (${totalHarvests}/yr)</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Yearly yield:</span>
+        <span class="stat-value" style="color:var(--text-gold);">${formatGold(log.logGoldPerHarvest * totalHarvests)}</span>
+      </div>
+    `;
+  }
 
   html += `<div style="margin-top:12px">`;
   for (const [mtype, prob] of Object.entries(log.typeProbs)) {
@@ -546,28 +565,40 @@ function formatGold(amount) {
 let currentInspectDismissListener = null;
 let currentInspectCellEl = null;
 
-function inspectLog(r, c) {
-  if (!state.lastResults || !state.lastResults.logs) return;
-  const log = state.lastResults.logs.find(l => l.row === r && l.col === c);
-  if (!log) return;
+function inspectCell(r, c) {
+  const cell = state.grid[r][c];
 
+  if (cell.type === CELL_MUSHLOG) {
+    if (!state.lastResults || !state.lastResults.logs) return;
+    const log = state.lastResults.logs.find(l => l.row === r && l.col === c);
+    if (!log) return;
+
+    const targetSig = getLogSignature(log);
+    const similarCoords = [];
+    for (const l of state.lastResults.logs) {
+      if (getLogSignature(l) === targetSig) {
+        similarCoords.push(`(${l.row},${l.col})`);
+      }
+    }
+
+    let similarLogsText = '';
+    if (similarCoords.length > 1) {
+      similarLogsText = `${similarCoords.length} logs at ${similarCoords.join(', ')}`;
+    }
+
+    const html = generateLogDetailBodyHTML(log, `(${r}, ${c})`, similarLogsText);
+    showTooltip(r, c, html);
+  } else if (cell.type === CELL_TREE) {
+    const html = generateTreeDetailBodyHTML(cell, r, c);
+    showTooltip(r, c, html);
+  }
+}
+
+function showTooltip(r, c, html) {
   const tooltip = $('#inspect-tooltip');
   if (!tooltip) return;
 
-  const targetSig = getLogSignature(log);
-  const similarCoords = [];
-  for (const l of state.lastResults.logs) {
-    if (getLogSignature(l) === targetSig) {
-      similarCoords.push(`(${l.row},${l.col})`);
-    }
-  }
-
-  let similarLogsText = '';
-  if (similarCoords.length > 1) {
-    similarLogsText = `${similarCoords.length} logs at ${similarCoords.join(', ')}`;
-  }
-
-  tooltip.innerHTML = generateLogDetailBodyHTML(log, `(${r}, ${c})`, similarLogsText);
+  tooltip.innerHTML = html;
   tooltip.classList.remove('hidden');
 
   // Position the tooltip near the cell
@@ -579,14 +610,14 @@ function inspectLog(r, c) {
     const rect = cellEl.getBoundingClientRect();
     let left = rect.right + 10;
     let top = rect.top;
-    
+
     if (left + 320 > window.innerWidth) {
       left = rect.left - 330;
     }
     if (top + tooltip.offsetHeight > window.innerHeight) {
       top = window.innerHeight - tooltip.offsetHeight - 10;
     }
-    
+
     tooltip.style.left = `${Math.max(10, left) + window.scrollX}px`;
     tooltip.style.top = `${Math.max(10, top) + window.scrollY}px`;
 
@@ -625,6 +656,92 @@ function closeInspectTooltip() {
     document.removeEventListener('mousedown', currentInspectDismissListener);
     currentInspectDismissListener = null;
   }
+}
+
+function generateTreeDetailBodyHTML(cell, r, c) {
+  const treeInfo = TREE_TYPES[cell.treeType];
+  const nearby = getNearbyCells(state.grid, r, c, state.gridWidth, state.gridHeight, state);
+  const logCount = nearby.filter(nc => nc.type === CELL_MUSHLOG).length;
+
+  let tapperHtml = '';
+  if (cell.tapper) {
+    const tapperData = treeInfo.tapper;
+    if (tapperData) {
+      const timing = calculateHarvestTiming(state);
+      const avgCycleDays = timing.avgCycleDays;
+
+      const isHeavy = cell.tapper === 'heavy_tapper';
+      const tapperDays = isHeavy ? tapperData.heavyTapperDays : tapperData.tapperDays;
+      const activeDaysPerYear = tapperData.winter ? 112 : 84;
+
+      let harvestsPerYear = 0;
+      let cycleDaysStr = tapperDays + ' days';
+      if (state.syncTappers) {
+        const numMushroomCyclesForTapper = Math.ceil(tapperDays / avgCycleDays);
+        const mushroomRunsInActivePeriod = Math.floor(activeDaysPerYear / avgCycleDays);
+        harvestsPerYear = Math.floor(mushroomRunsInActivePeriod / numMushroomCyclesForTapper);
+        cycleDaysStr = `Synced (${(numMushroomCyclesForTapper * avgCycleDays).toFixed(1)} days)`;
+      } else {
+        harvestsPerYear = Math.floor(activeDaysPerYear / tapperDays);
+      }
+
+      let price = tapperData.price;
+      if (state.tapperProfession && ['Maple Syrup', 'Oak Resin', 'Pine Tar', 'Mystic Syrup'].includes(tapperData.name)) {
+        price = Math.floor(price * 1.25);
+      }
+      const gold = harvestsPerYear * price;
+
+      tapperHtml = `
+        <div class="stat-row vertical">
+          <span class="stat-label">Tapper Output (${isHeavy ? 'Heavy' : 'Normal'})</span>
+          <div style="display:flex; justify-content:space-between; width:100%; margin-top:4px;">
+            <span class="stat-label">Harvest cycle:</span>
+            <span class="stat-value">${cycleDaysStr}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; width:100%; margin-top:4px;">
+            <span class="stat-label">${harvestsPerYear}x ${tapperData.name}</span>
+            <span class="stat-value" style="color:var(--text-accent);">${formatGold(gold)}/yr</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  let yieldText = '';
+  if (!treeInfo.mushroomYield) {
+    yieldText = `Boosts Standard Mix (Common, Red, Purple)`;
+  } else {
+    const yields = Object.keys(treeInfo.mushroomYield).map(k => {
+      const data = MUSHROOM_DATA[k];
+      return `<img src="${data.emoji}" style="width:16px; height:16px; object-fit:contain; vertical-align:middle;"> ${data.name}`;
+    });
+    yieldText = `Boosts ${yields.join(' & ')}`;
+  }
+
+  if (cell.hasMoss) {
+    yieldText += `<br/><span style="color: var(--text-accent); font-size: 0.75rem;">+ Chance of higher quality</span>`;
+  }
+
+  let html = `
+    <div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+      <img src="${treeInfo.emoji}" style="height:32px; image-rendering:pixelated;">
+      <strong style="font-size:1.1rem;">${cell.hasMoss ? 'Mossy ' : ''}${treeInfo.name}</strong>
+    </div>
+    <div style="font-size:0.8rem; color:var(--text-secondary);">
+      <strong>Located at:</strong> (${r}, ${c})
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Mushroom Logs in Range</span>
+      <span class="stat-value">${logCount}</span>
+    </div>
+    <div class="stat-row vertical">
+      <span class="stat-label">Mushroom Contribution</span>
+      <span class="stat-value" style="font-weight: normal; margin-top: 4px;">${yieldText}</span>
+    </div>
+    ${tapperHtml}
+  `;
+
+  return html;
 }
 
 function populateMathModal(results) {
