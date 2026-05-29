@@ -659,6 +659,15 @@ function populateMathModal(results) {
       <li><strong>Step 3:</strong> One type is chosen randomly from the combined pool.</li>
     </ul>
 
+    <h3>5. Required Processing</h3>
+    <ul>
+      <li><strong>Mechanic:</strong> The app calculates the number of dehydrators and preserves jars required to process the yield from each harvest before the next harvest is ready.</li>
+      <li><strong>Dehydrators:</strong> A dehydrator requires 5 mushrooms of the same type and quality, and takes 1 in-game day to finish. This means 1 dehydrator processes 5 mushrooms per day.</li>
+      <li><strong>Preserves Jars:</strong> A preserves jar processes 1 mushroom and takes 4000 in-game minutes (approximately 2.77 days) to finish.</li>
+      <li><strong>Smart Processing:</strong> Processing high-quality mushrooms (especially purple mushrooms) can sometimes result in a <em>lower</em> sale price than selling them raw. When calculating machine requirements, the app assumes you will sell these mushrooms raw, excluding them from the machine totals.</li>
+      <li><strong>Formula:</strong> The total machine-days required for the remaining yield are calculated and then divided by the <strong>Average Cycle Days</strong> (from section 1) to determine how many machines must run in parallel to keep up.</li>
+    </ul>
+
     <h3>Mushroom Logs Are Machines</h3>
     <ul>
       <li><strong>Mushroom Logs As Machines:</strong> Mushroom logs are implemented as farm machines like kegs, furnaces, etc. and share many of the same behaviors.</li>
