@@ -179,8 +179,8 @@ a {
 }
 
 .header-icon {
-  width: 24px;
-  height: 36px;
+  height: 48px;
+  width: 36px;
   object-fit: contain;
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
 }
@@ -653,16 +653,20 @@ img.result-icon {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+.combined-gold-card .flex-center {
+  justify-content: space-between;
+}
+
 .combined-gold-label {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .combined-gold-value {
-  font-size: 1.4rem;
+  font-size: 1.2em;
   font-weight: bold;
   color: var(--text-accent);
   text-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
@@ -776,23 +780,23 @@ details.results-section summary span {
 }
 
 .prob-bar-fill.common {
-  background: linear-gradient(90deg, #b49363, #d6b485);
+  background: linear-gradient(90deg, #b49363, var(--color-common));
 }
 
 .prob-bar-fill.red {
-  background: linear-gradient(90deg, #dc2626, #ef4444);
+  background: linear-gradient(90deg, #dc2626, var(--color-red));
 }
 
 .prob-bar-fill.purple {
-  background: linear-gradient(90deg, #9333ea, #a855f7);
+  background: linear-gradient(90deg, #9333ea, var(--color-purple));
 }
 
 .prob-bar-fill.morel {
-  background: linear-gradient(90deg, #b45309, #d97706);
+  background: linear-gradient(90deg, var(--quality-gold), var(--color-morel));
 }
 
 .prob-bar-fill.chanterelle {
-  background: linear-gradient(90deg, #d97706, #f59e0b);
+  background: linear-gradient(90deg, var(--color-morel), var(--color-chanterelle));
 }
 
 /* Quality breakdown */
@@ -1014,7 +1018,7 @@ details.results-section summary span {
 
 .modal-close:hover {
   background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  color: var(--color-red);
   border-color: rgba(239, 68, 68, 0.4);
   transform: rotate(90deg);
 }
@@ -1108,4 +1112,49 @@ details.results-section summary span {
 .inspect-mode-active,
 .inspect-mode-active * {
   cursor: zoom-in !important;
+}
+
+/* ── Utility Classes for Refactored Inline Styles ─────────────────── */
+
+.flex-center {
+  display: flex;
+  align-items: center;
+}
+
+.inline-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.text-accent {
+  color: var(--text-accent) !important;
+}
+
+.text-gold {
+  color: var(--text-gold) !important;
+}
+
+.info-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.info-text.margin-bottom {
+  margin-bottom: 12px;
+}
+
+.stat-subrow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.modal-list {
+  margin: 6px 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
 }

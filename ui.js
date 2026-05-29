@@ -255,7 +255,7 @@ function renderCombinedGold(results, hasTappers) {
   const combined = (results.totalGoldPerYear || 0) + (results.totalTapperGoldPerYear || 0);
   return `
     <div class="results-section combined-gold-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px;">
+      <div class="flex-between flex-center p-1">
         <span class="combined-gold-label">Combined Gold / Year</span>
         <span class="combined-gold-value">${formatGold(combined)}</span>
       </div>
@@ -266,8 +266,8 @@ function renderCombinedGold(results, hasTappers) {
 function renderMushroomLogsSummary(results, gridArea) {
   const goldPerDay = results.totalGoldPerYear / DAYS_PER_YEAR;
   return `
-    <div class="section-header" style="display:flex; align-items:center;">
-      <img src="assets/Mushroom_Log.png" class="header-icon" style="margin-right:8px;"> MUSHROOM LOGS
+    <div class="section-header flex-center">
+      <img src="assets/Mushroom_Log.png" class="header-icon"> MUSHROOM LOGS
     </div>
     <div class="gold-summary">
       <div class="big-number">${formatGold(results.totalGoldPerHarvest)}</div>
@@ -296,7 +296,7 @@ function renderFarmOverview(results, gridArea) {
 
   let html = `
     <div class="results-section" style="margin-top:14px">
-      <h3 style="display:flex; align-items:center;"><img src="assets/Farm_Computer.png" class="header-icon"> FARM OVERVIEW</h3>
+      <h2 class="panel-title"><img src="assets/Farm_Computer.png" class="header-icon"> FARM OVERVIEW</h2>
       <div class="stat-row">
         <span class="stat-label">Empty Space</span>
         <span class="stat-value">${results.emptyCount} (${emptyPct}%)</span>
@@ -322,7 +322,7 @@ function renderFarmOverview(results, gridArea) {
         html += `
           <div class="stat-row mini">
             <span class="stat-label">
-              <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
+              <img src="${tInfo.emoji}" class="inline-icon"> ${tInfo.name}
             </span>
             <span class="stat-value">${tCount}</span>
           </div>
@@ -362,7 +362,7 @@ function renderMushroomMix(results, gridArea) {
 
   let html = `
     <div class="results-section">
-      <h3 style="display:flex; align-items:center;"><img src="assets/Mushroom_Log_Ready.png" class="header-icon"> MUSHROOM MIX (AVG/HARVEST)</h3>
+      <h2 class="flex-center panel-title"><img src="assets/Mushroom_Log_Ready.png" class="header-icon"> MUSHROOM MIX (AVG/HARVEST)</h2>
   `;
 
   for (const [mtype, data] of Object.entries(MUSHROOM_DATA)) {
@@ -420,14 +420,14 @@ function renderProcessingRequirements(results) {
 
   return `
     <div class="results-section">
-      <h3 style="display:flex; align-items:center;"><img src="assets/Dehydrator.png" class="header-icon"> REQUIRED PROCESSING</h3>
+      <h2 class="flex-center panel-title"><img src="assets/Dehydrator.png" class="header-icon"> REQUIRED PROCESSING</h2>
       <div class="stat-row">
         <span class="stat-label">Dehydrators</span>
-        <span class="stat-value" style="color:var(--text-accent);">${results.dehydratorsRequired}</span>
+        <span class="stat-value text-accent">${results.dehydratorsRequired}</span>
       </div>
       <div class="stat-row">
         <span class="stat-label">Preserves Jars</span>
-        <span class="stat-value" style="color:var(--text-accent);">${results.jarsRequired}</span>
+        <span class="stat-value text-accent">${results.jarsRequired}</span>
       </div>
       <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:8px; line-height:1.4;">
         ${bypassMsg}
@@ -443,7 +443,7 @@ function getLogSignature(log) {
 
 function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
   let html = `
-          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
+          <div class="info-text margin-bottom">
             <strong>Located at:</strong> ${coordsString}
           </div>
           <div class="stat-row vertical">
@@ -455,7 +455,7 @@ function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
     return `
                   <div class="stat-row mini">
                     <span class="stat-label">
-                      <img src="${tInfo.emoji}" style="width:16px; height:16px; object-fit:contain;"> ${tInfo.name}
+                      <img src="${tInfo.emoji}" class="inline-icon"> ${tInfo.name}
                     </span>
                     <span class="stat-value">${tCount}</span>
                   </div>
@@ -486,7 +486,7 @@ function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
     html += `
       <div class="stat-row">
         <span class="stat-label">Yield per harvest:</span>
-        <span class="stat-value" style="color:var(--text-accent);">${formatGold(log.logGoldPerHarvest)}</span>
+        <span class="stat-value text-accent">${formatGold(log.logGoldPerHarvest)}</span>
       </div>
       <div class="stat-row">
         <span class="stat-label">Harvest cycle:</span>
@@ -494,7 +494,7 @@ function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
       </div>
       <div class="stat-row">
         <span class="stat-label">Yearly yield:</span>
-        <span class="stat-value" style="color:var(--text-gold);">${formatGold(log.logGoldPerHarvest * totalHarvests)}</span>
+        <span class="stat-value text-gold">${formatGold(log.logGoldPerHarvest * totalHarvests)}</span>
       </div>
     `;
   }
@@ -528,8 +528,8 @@ function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
 
 function renderTappersSummary(results) {
   let html = `
-    <div class="section-header" style="display:flex; align-items:center;">
-      <img src="assets/Tapper.png" class="header-icon" style="margin-right:8px;"> TAPPERS
+    <div class="section-header flex-center">
+      <img src="assets/Tapper.png" class="header-icon"> TAPPERS
     </div>
     <div class="results-section">
   `;
@@ -551,7 +551,7 @@ function renderTappersSummary(results) {
   html += `
       <div class="stat-row" style="margin-top:8px; padding-top:4px;">
         <span class="stat-label"><strong>Tapper Gold / Year</strong></span>
-        <span class="stat-value" style="color:var(--text-accent);"><strong>${formatGold(results.totalTapperGoldPerYear)}</strong></span>
+        <span class="stat-value text-accent"><strong>${formatGold(results.totalTapperGoldPerYear)}</strong></span>
       </div>
     </div>
   `;
@@ -694,13 +694,13 @@ function generateTreeDetailBodyHTML(cell, r, c) {
       tapperHtml = `
         <div class="stat-row vertical">
           <span class="stat-label">Tapper Output (${isHeavy ? 'Heavy' : 'Normal'})</span>
-          <div style="display:flex; justify-content:space-between; width:100%; margin-top:4px;">
+          <div class="stat-subrow">
             <span class="stat-label">Harvest cycle:</span>
             <span class="stat-value">${cycleDaysStr}</span>
           </div>
-          <div style="display:flex; justify-content:space-between; width:100%; margin-top:4px;">
+          <div class="stat-subrow">
             <span class="stat-label">${harvestsPerYear}x ${tapperData.name}</span>
-            <span class="stat-value" style="color:var(--text-accent);">${formatGold(gold)}/yr</span>
+            <span class="stat-value text-accent">${formatGold(gold)}/yr</span>
           </div>
         </div>
       `;
@@ -713,7 +713,7 @@ function generateTreeDetailBodyHTML(cell, r, c) {
   } else {
     const yields = Object.keys(treeInfo.mushroomYield).map(k => {
       const data = MUSHROOM_DATA[k];
-      return `<img src="${data.emoji}" style="width:16px; height:16px; object-fit:contain; vertical-align:middle;"> ${data.name}`;
+      return `<img src="${data.emoji}" class="inline-icon"> ${data.name}`;
     });
     yieldText = `Boosts ${yields.join(' & ')}`;
   }
@@ -775,7 +775,7 @@ function populateMathModal(results) {
       <li><strong>Base cycle:</strong> ${BASE_HARVEST_CYCLE_DAYS} days</li>
       <li><strong>Location:</strong> ${loc} (average ${rainProbStr}% chance of rain per day)
         ${!isTotem && state.farmLocation === 'main' ? `
-          <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
+          <ul class="modal-list">
             <li>Spring and fall have a flat 18.3% chance of rain.</li>
             <li>Summer rain odds increase daily, plus 1 guaranteed Green Rain day.</li>
             <li>Winter never has rain naturally.</li>
@@ -785,7 +785,7 @@ function populateMathModal(results) {
           </ul>
         ` : ''}
         ${isTotem ? `
-          <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
+          <ul class="modal-list">
             <li>Rain Totems force rain every day except on festival days and the 1st of the season.</li>
             <li>This averages out to an ${RAIN_PROB_TOTEM * 100}% chance of rain per day over the year.</li>
           </ul>
@@ -820,7 +820,7 @@ function populateMathModal(results) {
       <li><strong>Mechanic:</strong> The game builds a pool of possible mushrooms based on nearby trees.</li>
       <li><strong>Step 1 (Basic Pool):</strong> Adds <code>max(1, floor(NearbyTrees * 0.75))</code> entries from a base distribution (Common 80.75%, Red 14.25%, Purple 5%).</li>
       <li><strong>Step 2 (Tree Bonus):</strong> Adds 1 entry per mature tree based on its type:
-        <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
+        <ul class="modal-list">
           <li><strong>Oak:</strong> 100% Morel</li>
           <li><strong>Pine:</strong> 100% Chanterelle</li>
           <li><strong>Mystic:</strong> 100% Purple</li>
@@ -846,7 +846,7 @@ function populateMathModal(results) {
       <li><strong>Harvest:</strong> All the mushrooms for each harvest are of the same type and quality. This tool gives the averages over all possibilities.</li>
       <li><strong>When:</strong> Counterintuitively, these determinations are made at the time of the <em>previous harvest</em> (or when the log was placed down for the first harvest). As such, the types of mushrooms produced may be inconsistent with the types of surrounding trees, since they may have been immature at the time the products were deterimined.</li>
       <li><strong>Wiki references:</strong>
-      <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
+      <ul class="modal-list">
         <li><strong><a href="https://stardewvalleywiki.com/Mushroom_Log" target="_blank">Mushroom Log</a></strong></li>
         <li><strong><a href="https://stardewvalleywiki.com/Moss" target="_blank">Moss</a></strong></li>
         <li><strong><a href="https://stardewvalleywiki.com/Trees" target="_blank">Trees</a></strong></li>
