@@ -25,6 +25,7 @@ const state = {
   },
   hoveredLog: null,
   lastResults: null,
+  inspectMode: false,
 };
 
 const STORAGE_KEY = 'stardewMushroomFarmState';

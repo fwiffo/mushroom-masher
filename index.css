@@ -370,11 +370,11 @@ img.result-icon {
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
 }
 
-.log-detail .result-icon {
+#inspect-tooltip .result-icon {
   height: 24px;
 }
 
-.log-detail .pct {
+#inspect-tooltip .pct {
   height: 24px;
 }
 
@@ -540,6 +540,12 @@ img.result-icon {
 .grid-cell.in-range {
   background: rgba(52, 211, 153, 0.15);
   box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.4);
+}
+
+.grid-cell.inspect-highlight {
+  box-shadow: inset 0 0 8px white, 0 0 12px var(--text-accent);
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 10;
 }
 
 .grid-cell.unreachable::after,
@@ -900,57 +906,6 @@ details.results-section summary span {
   letter-spacing: 1px;
 }
 
-/* Per-log details accordion */
-.log-detail {
-  background: rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: var(--radius-md);
-  margin-bottom: 4px;
-  overflow: hidden;
-  transition: all var(--transition-fast);
-}
-
-.log-detail:hover {
-  background: rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.7);
-}
-
-.log-detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.log-detail-header>span:first-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 8px;
-}
-
-.log-detail-header .chevron {
-  transition: transform var(--transition-med);
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-}
-
-.log-detail.open .chevron {
-  transform: rotate(90deg);
-  color: var(--text-accent);
-}
-
-.log-detail-body {
-  padding: 0 14px 14px;
-  display: none;
-}
-
-.log-detail.open .log-detail-body {
-  display: block;
-}
 
 /* ── Tileable pattern info ────────────────────────── */
 
@@ -1129,4 +1084,26 @@ details.results-section summary span {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Tooltip ────────────────────────────────────────── */
+
+#inspect-tooltip {
+  position: absolute;
+  background: rgba(255, 246, 220, 0.95);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding: 12px;
+  z-index: 1000;
+  width: 320px;
+  color: var(--text-primary);
+}
+
+#inspect-tooltip.hidden {
+  display: none;
+}
+
+.inspect-mode-active, .inspect-mode-active * {
+  cursor: zoom-in !important;
 }

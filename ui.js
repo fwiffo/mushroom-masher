@@ -214,7 +214,9 @@ function renderResults(results) {
   if (!resultsContent) return;
   state.lastResults = results;
   const hasTappers = results.tapperBreakdown && Object.keys(results.tapperBreakdown).length > 0;
-  if (showMathBtn) showMathBtn.style.display = (results.logCount > 0 || hasTappers) ? 'block' : 'none';
+  const inspectModeBtn = $('#inspect-mode-btn');
+  if (showMathBtn) showMathBtn.style.display = (results.logCount > 0 || hasTappers) ? 'inline-flex' : 'none';
+  if (inspectModeBtn) inspectModeBtn.style.display = (results.logCount > 0) ? 'inline-flex' : 'none';
 
   if (results.logCount === 0 && !hasTappers) {
     resultsContent.innerHTML = renderEmptyState();
@@ -231,7 +233,6 @@ function renderResults(results) {
     html += renderFarmOverview(results, gridArea);
     html += renderMushroomMix(results, gridArea);
     html += renderProcessingRequirements(results);
-    html += renderPerLogDetails(results);
   }
 
   if (hasTappers) {
@@ -435,45 +436,15 @@ function renderProcessingRequirements(results) {
   `;
 }
 
-function renderPerLogDetails(results) {
+function getLogSignature(log) {
+  const sortedTrees = Object.keys(log.nearbyTreeCounts || {}).sort().map(k => `${k}:${log.nearbyTreeCounts[k]}`).join(',');
+  return `${log.totalTrees}-${log.mossyCount}-${JSON.stringify(log.typeProbs)}-${sortedTrees}`;
+}
+
+function generateLogDetailBodyHTML(log, coordsString, similarLogsText) {
   let html = `
-    <details class="results-section" style="margin-top:14px; cursor:pointer;">
-      <summary>
-        <span>PER-LOG DETAILS</span>
-      </summary>
-      <div style="margin-top:16px; cursor:default; display:flex; flex-direction:column; gap:8px;">
-  `;
-
-  const logGroups = {};
-  for (const log of results.logs) {
-    const sortedTrees = Object.keys(log.nearbyTreeCounts || {}).sort().map(k => `${k}:${log.nearbyTreeCounts[k]}`).join(',');
-    const sig = `${log.totalTrees}-${log.mossyCount}-${JSON.stringify(log.typeProbs)}-${sortedTrees}`;
-    if (!logGroups[sig]) {
-      logGroups[sig] = { count: 0, sampleLog: log, coords: [] };
-    }
-    logGroups[sig].count++;
-    logGroups[sig].coords.push(`(${log.row},${log.col})`);
-  }
-
-  const groups = Object.values(logGroups);
-  groups.sort((a, b) => b.sampleLog.logGoldPerHarvest - a.sampleLog.logGoldPerHarvest);
-
-  for (let i = 0; i < groups.length; i++) {
-    const group = groups[i];
-    const log = group.sampleLog;
-    const multi = group.count > 1;
-    const logIcon = `<img src="assets/Mushroom_Log.png" alt="Log" style="height: 2.4em; width: auto; vertical-align: middle; margin-right: 6px; image-rendering: pixelated; margin-top: -4px;">`;
-    const title = multi ? `${logIcon}${group.count} Logs` : `${logIcon}Log ${group.coords[0]}`;
-
-    html += `
-      <div class="log-detail" id="log-detail-${i}">
-        <div class="log-detail-header" onclick="toggleLogDetail(${i})">
-          <span>${title} — ${log.totalTrees} trees — ${formatGold(log.logGoldPerHarvest)}/harvest ${multi ? 'each' : ''}</span>
-          <span class="chevron">▶</span>
-        </div>
-        <div class="log-detail-body">
           <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
-            <strong>Located at:</strong> ${group.coords.join(', ')}
+            <strong>Located at:</strong> ${coordsString}
           </div>
           <div class="stat-row vertical">
             <span class="stat-label">Nearby trees: ${log.totalTrees} (${log.mossyCount} Mossy)</span>
@@ -503,17 +474,17 @@ function renderPerLogDetails(results) {
           <div style="margin-top:6px">
             <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Quality distribution:</div>
             <div class="quality-row">
-    `;
-    for (let q = 0; q < 4; q++) {
-      html += `<span class="quality-badge ${QUALITY_CLASSES[q]}">${QUALITY_NAMES[q]} ${(log.qualProbs[q] * 100).toFixed(1)}%</span>`;
-    }
-    html += `</div></div>`;
+  `;
+  for (let q = 0; q < 4; q++) {
+    html += `<span class="quality-badge ${QUALITY_CLASSES[q]}">${QUALITY_NAMES[q]} ${(log.qualProbs[q] * 100).toFixed(1)}%</span>`;
+  }
+  html += `</div></div>`;
 
-    html += `<div style="margin-top:12px">`;
-    for (const [mtype, prob] of Object.entries(log.typeProbs)) {
-      if (prob === 0) continue;
-      const data = MUSHROOM_DATA[mtype];
-      html += `
+  html += `<div style="margin-top:12px">`;
+  for (const [mtype, prob] of Object.entries(log.typeProbs)) {
+    if (prob === 0) continue;
+    const data = MUSHROOM_DATA[mtype];
+    html += `
         <div class="prob-bar-container">
           <div class="prob-bar-label">
             <span class="name"><img src="${data.emoji}" class="result-icon"> ${data.name}</span>
@@ -521,13 +492,20 @@ function renderPerLogDetails(results) {
           </div>
           <div class="prob-bar"><div class="prob-bar-fill ${mtype}" style="width:${prob * 100}%"></div></div>
         </div>
-      `;
-    }
-    html += `</div></div></div>`;
+    `;
   }
-  html += `</div></details>`;
+  if (similarLogsText) {
+    html += `
+      <div style="margin-top:12px; font-size:0.8rem; color:var(--text-secondary); border-top:1px solid rgba(255,255,255,0.2); padding-top:8px;">
+        <strong>Similar logs:</strong> ${similarLogsText}
+      </div>
+    `;
+  }
+  html += `</div>`;
   return html;
 }
+
+
 
 function renderTappersSummary(results) {
   let html = `
@@ -561,15 +539,92 @@ function renderTappersSummary(results) {
   return html;
 }
 
-function toggleLogDetail(i) {
-  const el = document.getElementById(`log-detail-${i}`);
-  if (el) el.classList.toggle('open');
-}
-// Expose to global for onclick
-window.toggleLogDetail = toggleLogDetail;
-
 function formatGold(amount) {
   return Math.round(amount).toLocaleString() + 'g';
+}
+
+let currentInspectDismissListener = null;
+let currentInspectCellEl = null;
+
+function inspectLog(r, c) {
+  if (!state.lastResults || !state.lastResults.logs) return;
+  const log = state.lastResults.logs.find(l => l.row === r && l.col === c);
+  if (!log) return;
+
+  const tooltip = $('#inspect-tooltip');
+  if (!tooltip) return;
+
+  const targetSig = getLogSignature(log);
+  const similarCoords = [];
+  for (const l of state.lastResults.logs) {
+    if (getLogSignature(l) === targetSig) {
+      similarCoords.push(`(${l.row},${l.col})`);
+    }
+  }
+
+  let similarLogsText = '';
+  if (similarCoords.length > 1) {
+    similarLogsText = `${similarCoords.length} logs at ${similarCoords.join(', ')}`;
+  }
+
+  tooltip.innerHTML = generateLogDetailBodyHTML(log, `(${r}, ${c})`, similarLogsText);
+  tooltip.classList.remove('hidden');
+
+  // Position the tooltip near the cell
+  const gridW = state.gridWidth;
+  const idx = r * gridW + c;
+  const cells = farmGridEl.querySelectorAll('.grid-cell');
+  const cellEl = cells[idx];
+  if (cellEl) {
+    const rect = cellEl.getBoundingClientRect();
+    let left = rect.right + 10;
+    let top = rect.top;
+    
+    if (left + 320 > window.innerWidth) {
+      left = rect.left - 330;
+    }
+    if (top + tooltip.offsetHeight > window.innerHeight) {
+      top = window.innerHeight - tooltip.offsetHeight - 10;
+    }
+    
+    tooltip.style.left = `${Math.max(10, left) + window.scrollX}px`;
+    tooltip.style.top = `${Math.max(10, top) + window.scrollY}px`;
+
+    if (currentInspectCellEl) {
+      currentInspectCellEl.classList.remove('inspect-highlight');
+    }
+    currentInspectCellEl = cellEl;
+    currentInspectCellEl.classList.add('inspect-highlight');
+  }
+
+  // Remove any existing dismiss listener to prevent immediate closure on bubble
+  if (currentInspectDismissListener) {
+    document.removeEventListener('mousedown', currentInspectDismissListener);
+  }
+
+  currentInspectDismissListener = (e) => {
+    if (!tooltip.contains(e.target)) {
+      closeInspectTooltip();
+    }
+  };
+
+  // Set up global click to dismiss after the current event loop
+  setTimeout(() => {
+    document.addEventListener('mousedown', currentInspectDismissListener);
+  }, 0);
+}
+
+function closeInspectTooltip() {
+  const tooltip = $('#inspect-tooltip');
+  if (tooltip) tooltip.classList.add('hidden');
+  if (currentInspectCellEl) {
+    currentInspectCellEl.classList.remove('inspect-highlight');
+    currentInspectCellEl = null;
+  }
+  if (currentInspectDismissListener) {
+    document.removeEventListener('mousedown', currentInspectDismissListener);
+    currentInspectDismissListener = null;
+  }
 }
 
 function populateMathModal(results) {

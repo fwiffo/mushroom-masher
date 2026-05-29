@@ -74,6 +74,13 @@ function updateCalculation() {
 // ── Grid Interaction ─────────────────────────────────────────
 
 function handleCellClick(r, c) {
+  if (state.inspectMode) {
+    if (state.grid[r][c].type === CELL_MUSHLOG) {
+      inspectLog(r, c);
+    }
+    return;
+  }
+
   const tool = state.selectedTool;
   if (!tool) return;
   const cell = state.grid[r][c];
@@ -342,6 +349,33 @@ function setupEventListeners() {
     showMathBtn.addEventListener('click', () => {
       populateMathModal(state.lastResults);
       mathModal.classList.add('open');
+    });
+  }
+
+  const inspectModeBtn = $('#inspect-mode-btn');
+  if (inspectModeBtn) {
+    inspectModeBtn.addEventListener('click', () => {
+      state.inspectMode = !state.inspectMode;
+      if (state.inspectMode) {
+        inspectModeBtn.classList.add('active');
+        // Clear selected tool if we're entering inspect mode
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        state.selectedTool = null;
+        inspectModeBtn.classList.add('active');
+        farmGridEl.classList.add('inspect-mode-active');
+      } else {
+        inspectModeBtn.classList.remove('active');
+        farmGridEl.classList.remove('inspect-mode-active');
+      }
+    });
+    
+    // Also disable inspect mode when selecting a regular tool
+    document.querySelectorAll('.tool-grid .tool-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.inspectMode = false;
+        inspectModeBtn.classList.remove('active');
+        farmGridEl.classList.remove('inspect-mode-active');
+      });
     });
   }
 
