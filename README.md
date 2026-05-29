@@ -164,13 +164,13 @@ will regenerate moss much faster than a naturally grown tree.
 Tree Fertilizer cannot later be applied to mature trees, so must be applied to a
 seed or sapling.
 
-Mossy green rain trees (type 1 and 2) accelerate moss growth on nearby trees.
-However, these tree types will produce lower value types of mushrooms if near a
-mushroom log, so are not a good idea for accelerating moss growth in a mushroom
-farm.
+Mossy [green rain trees](https://stardewvalleywiki.com/Green_Rain_Trees) (type 1
+and 2) accelerate moss growth on nearby trees. However, these tree types will
+produce lower value types of mushrooms if near a mushroom log, so are not a good
+idea for accelerating moss growth in a mushroom farm.
 
-Moss itself has no impact on the *type* or *quantity* of mushrooms produced, so
-if you're processing your mushrooms (not affected by quality), your mushroom
+Moss itself has no impact on the *type* or *quantity* of mushrooms produced.
+If you're processing your mushrooms (not affected by quality), your mushroom
 farm can double as a moss farm.
 
 Mystic trees can't grow moss, but they're slow growing, so tree fertilizer is
