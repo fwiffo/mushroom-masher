@@ -148,12 +148,14 @@ function highlightRange(logR, logC, on) {
 function updateGridHighlighting(results) {
   if (!farmGridEl) return;
 
-  // Clear existing unreachable flags
+  // Clear existing unreachable flags and badges
   const cells = farmGridEl.querySelectorAll('.grid-cell');
   cells.forEach(c => {
     c.classList.remove('unreachable');
     c.classList.remove('unreachable-path');
     c.removeAttribute('title');
+    const badge = c.querySelector('.tree-count-badge');
+    if (badge) badge.remove();
   });
 
   if (results) {
@@ -173,6 +175,31 @@ function updateGridHighlighting(results) {
         if (cells[idx]) {
           cells[idx].classList.add('unreachable-path');
           cells[idx].title = "Unreachable by player";
+        }
+      }
+    }
+
+    if (results.logs) {
+      for (const log of results.logs) {
+        const idx = log.row * state.gridWidth + log.col;
+        const cellEl = cells[idx];
+        if (cellEl) {
+          const content = cellEl.querySelector('.cell-content.mushlog');
+          if (content) {
+            const badge = document.createElement('div');
+            badge.className = 'tree-count-badge';
+            badge.textContent = log.totalTrees;
+            content.appendChild(badge);
+
+            const img = content.querySelector('.cell-img');
+            if (img) {
+              if (log.totalTrees === 10) {
+                img.src = 'assets/Mushroom_Log_Ready.png';
+              } else {
+                img.src = 'assets/Mushroom_Log.png';
+              }
+            }
+          }
         }
       }
     }
@@ -334,7 +361,7 @@ function renderMushroomMix(results, gridArea) {
 
   let html = `
     <div class="results-section">
-      <h3 style="display:flex; align-items:center;"><img src="assets/Red_Mushroom.png" class="header-icon"> MUSHROOM MIX (AVG/HARVEST)</h3>
+      <h3 style="display:flex; align-items:center;"><img src="assets/Mushroom_Log_Ready.png" class="header-icon"> MUSHROOM MIX (AVG/HARVEST)</h3>
   `;
 
   for (const [mtype, data] of Object.entries(MUSHROOM_DATA)) {
