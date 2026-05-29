@@ -426,4 +426,166 @@ function runTests() {
       assertEqual(formatGold(1500.6), '1,501g'); // rounded
     });
   });
+
+  describe('calculateReachableSpaces()', () => {
+    it('marks edges as reachable', () => {
+      const grid = createEmptyGrid(3, 3);
+      const reachable = calculateReachableSpaces(grid, 3, 3);
+      assertEqual(reachable[0][0], true);
+      assertEqual(reachable[1][1], true);
+    });
+
+    it('identifies unreachable spaces enclosed by trees', () => {
+      const grid = createEmptyGrid(5, 5);
+      for (let r = 1; r <= 3; r++) {
+        for (let c = 1; c <= 3; c++) {
+          if (r === 2 && c === 2) continue;
+          grid[r][c].type = CELL_TREE;
+        }
+      }
+      const reachable = calculateReachableSpaces(grid, 5, 5);
+      assertEqual(reachable[0][0], true);
+      assertEqual(reachable[2][2], false); // Enclosed space
+    });
+  });
+
+  describe('calculateMushroomLog() - Per Log Details', () => {
+    const baseConfig = { wrapAround: false, farmLocation: 'main' };
+
+    it('calculates stats correctly for a log with no trees', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[1][1].type = CELL_MUSHLOG;
+      const log = calculateMushroomLog(grid, 1, 1, 3, 3, baseConfig);
+      assertEqual(log.totalTrees, 0);
+      assertEqual(log.expectedQty, 1);
+      assertEqual(log.typeProbs.common, 0.8075);
+      assertEqual(log.typeProbs.red, 0.1425);
+      assertEqual(log.typeProbs.purple, 0.05);
+    });
+
+    it('calculates stats correctly for a log with a mossy tree', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[1][1].type = CELL_MUSHLOG;
+      grid[0][1].type = CELL_TREE;
+      grid[0][1].hasMoss = true;
+      const log = calculateMushroomLog(grid, 1, 1, 3, 3, baseConfig);
+      assertEqual(log.totalTrees, 1);
+      assertEqual(log.mossyCount, 1);
+    });
+
+    it('identifies nearby tree types', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[1][1].type = CELL_MUSHLOG;
+      grid[0][0].type = CELL_TREE; grid[0][0].treeType = 'oak';
+      grid[0][1].type = CELL_TREE; grid[0][1].treeType = 'oak';
+      grid[2][2].type = CELL_TREE; grid[2][2].treeType = 'maple';
+      const log = calculateMushroomLog(grid, 1, 1, 3, 3, baseConfig);
+      assertEqual(log.nearbyTreeCounts['oak'], 2);
+      assertEqual(log.nearbyTreeCounts['maple'], 1);
+    });
+
+    it('calculates type probabilities correctly for an oak tree', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[1][1].type = CELL_MUSHLOG;
+      grid[0][1].type = CELL_TREE; grid[0][1].treeType = 'oak';
+      const log = calculateMushroomLog(grid, 1, 1, 3, 3, baseConfig);
+      assertEqual(log.typeProbs.morel, 0.5);
+      assertClose(log.typeProbs.common, 0.8075 / 2);
+    });
+
+    it('calculates type probabilities correctly for a pine tree', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[1][1].type = CELL_MUSHLOG;
+      grid[0][1].type = CELL_TREE; grid[0][1].treeType = 'pine';
+      const log = calculateMushroomLog(grid, 1, 1, 3, 3, baseConfig);
+      assertEqual(log.typeProbs.chanterelle, 0.5);
+      assertClose(log.typeProbs.red, 0.1425 / 2);
+    });
+
+    it('calculates type probabilities correctly for multiple different trees', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[1][1].type = CELL_MUSHLOG;
+      grid[0][1].type = CELL_TREE; grid[0][1].treeType = 'maple';
+      grid[1][0].type = CELL_TREE; grid[1][0].treeType = 'mystic';
+      const log = calculateMushroomLog(grid, 1, 1, 3, 3, baseConfig);
+      assertClose(log.typeProbs.purple, (0.05 + 0.1 + 1.0) / 3);
+      assertClose(log.typeProbs.red, (0.1425 + 0.9) / 3);
+      assertClose(log.typeProbs.common, 0.8075 / 3);
+    });
+  });
+
+  describe('getNearbyCells()', () => {
+    it('returns up to 48 cells within a 7x7 area for a large grid', () => {
+      const grid = createEmptyGrid(10, 10);
+      const nearby = getNearbyCells(grid, 5, 5, 10, 10, { wrapAround: false });
+      assertEqual(nearby.length, 48); // 7x7 - 1 center cell
+    });
+
+    it('returns fewer cells for an edge cell without wrapAround', () => {
+      const grid = createEmptyGrid(10, 10);
+      const nearby = getNearbyCells(grid, 0, 0, 10, 10, { wrapAround: false });
+      // R goes 0 to 3 (4), C goes 0 to 3 (4). 4x4 - 1 = 15 cells.
+      assertEqual(nearby.length, 15);
+    });
+
+    it('returns 48 cells for an edge cell with wrapAround', () => {
+      const grid = createEmptyGrid(10, 10);
+      const nearby = getNearbyCells(grid, 0, 0, 10, 10, { wrapAround: true });
+      assertEqual(nearby.length, 48);
+    });
+  });
+
+  describe('calculateHarvestTiming()', () => {
+    it('calculates cycles for main farm without totems', () => {
+      const config = { farmLocation: 'main', useRainTotems: false };
+      const timing = calculateHarvestTiming(config);
+      // BASE_HARVEST_CYCLE_DAYS / (1 + RAIN_PROB_MAIN) => 4 / 1.1356 = 3.522
+      assertClose(timing.avgCycleDays, 4 / 1.1356);
+    });
+
+    it('calculates cycles for ginger island', () => {
+      const config = { farmLocation: 'ginger', useRainTotems: false };
+      const timing = calculateHarvestTiming(config);
+      assertClose(timing.avgCycleDays, 4 / 1.24);
+    });
+
+    it('calculates cycles using rain totems (excluding desert)', () => {
+      const config = { farmLocation: 'main', useRainTotems: true };
+      const timing = calculateHarvestTiming(config);
+      assertClose(timing.avgCycleDays, 4 / 1.89);
+    });
+  });
+
+  describe('calculateLogEconomics()', () => {
+    it('calculates total machines required', () => {
+      const rawLogs = [
+        { typeProbs: { common: 1 }, expectedQty: 5, qualProbs: [1, 0, 0, 0] }
+      ];
+      const config = { processing: { common: 'dehydrator' }, artisanProfession: false };
+      const econ = calculateLogEconomics(rawLogs, 3, config);
+      
+      // 5 common mushrooms / 5 per dehydrator = 1 dehydrator day.
+      // 1 day / 3 days per cycle = 0.33 => ceil => 1 dehydrator needed.
+      assertEqual(econ.dehydratorsRequired, 1);
+      assertEqual(econ.jarsRequired, 0);
+    });
+  });
+
+  describe('calculateTapperEconomics()', () => {
+    it('calculates tapper yield based on active season', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[1][1].type = CELL_TREE; 
+      grid[1][1].treeType = 'oak';
+      grid[1][1].tapper = 'tapper'; // Oak resin, 150g, 7 days, winter=true
+      
+      const config = { grid, gridWidth: 3, gridHeight: 3, tapperProfession: false, syncTappers: false };
+      const reachableEmpty = Array(3).fill(null).map(() => Array(3).fill(true));
+      const econ = calculateTapperEconomics(config, 4, reachableEmpty);
+      
+      // harvests = floor(112 / 7) = 16
+      // gold = 16 * 150 = 2400
+      assertEqual(econ.totalTapperGoldPerYear, 2400);
+      assertEqual(econ.tapperBreakdown['Oak Tree (Normal Tapper)'].tapperCount, 1);
+    });
+  });
 }
