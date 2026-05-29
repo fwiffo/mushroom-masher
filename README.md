@@ -45,12 +45,16 @@ yields, and compare efficiency.
 The calculated output of your farm appears in a panel on the right and is
 updated as you edit the farm:
 - **Combined Gold / Year:** Total profit including both logs and tappers.
-- **Per-Log Breakdown:** Expanding the per-log details shows you exactly what
-  each log sees in its 7x7 grid and its specific expected yield, quality
-  breakdown, and mushroom type probabilities.
 - **Required Machinery:** Tells you the minimum number of dehydrators and
   preserves jars you need to keep up with your specific layout's production
   rate.
+- **Farm Overview:** Statistics about the overall farm.
+- **Mushroom Mix:** Types of mushrooms produced and overall farm efficiency
+  (mushrooms per tile per harvest).
+- **Inspect Tool:** Using the inspect tool on a log shows you exactly what each
+  log sees in its 7x7 grid and its specific expected yield, quality breakdown,
+  and mushroom type probabilities. Inspecting a tree shows the number of
+  affected logs, the mushroom types boosted, and tapper information.
 
 ## The Math
 
