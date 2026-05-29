@@ -482,7 +482,7 @@ function renderPerLogDetails(results) {
     }
     html += `</div></div>`;
 
-    html += `<div style="margin-top:6px">`;
+    html += `<div style="margin-top:12px">`;
     for (const [mtype, prob] of Object.entries(log.typeProbs)) {
       if (prob === 0) continue;
       const data = MUSHROOM_DATA[mtype];
@@ -639,11 +639,11 @@ function populateMathModal(results) {
       <li><strong>When:</strong> Counterintuitively, these determinations are made at the time of the <em>previous harvest</em> (or when the log was placed down for the first harvest). As such, the types of mushrooms produced may be inconsistent with the types of surrounding trees, since they may have been immature at the time the products were deterimined.</li>
       <li><strong>Wiki references:</strong>
       <ul style="margin-top:6px; margin-bottom:6px; font-size:0.85rem; opacity:0.85;">
-        <li><strong><a href="https://stardewvalleywiki.com/Mushroom_Log" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Mushroom Log</a></strong></li>
-        <li><strong><a href="https://stardewvalleywiki.com/Moss" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Moss</a></strong></li>
-        <li><strong><a href="https://stardewvalleywiki.com/Trees" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Trees</a></strong></li>
-        <li><strong><a href="https://stardewvalleywiki.com/Weather" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Weather</a></strong></li>
-        <li><strong><a href="https://stardewvalleywiki.com/Green_Rain" target="_blank" style="color:var(--text-accent); text-decoration: underline;">Green_Rain</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Mushroom_Log" target="_blank">Mushroom Log</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Moss" target="_blank">Moss</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Trees" target="_blank">Trees</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Weather" target="_blank">Weather</a></strong></li>
+        <li><strong><a href="https://stardewvalleywiki.com/Green_Rain" target="_blank">Green Rain</a></strong></li>
       </ul>
     </li>
   </ul>

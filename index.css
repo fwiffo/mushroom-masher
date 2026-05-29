@@ -84,6 +84,10 @@ h3 {
   font-weight: 700;
 }
 
+a {
+  color: var(--text-accent);
+}
+
 /* ── Header ───────────────────────────────────────── */
 
 .app-header {
@@ -347,6 +351,14 @@ img.result-icon {
   height: auto;
   vertical-align: middle;
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
+}
+
+.log-detail .result-icon {
+  height: 24px;
+}
+
+.log-detail .pct {
+  height: 24px;
 }
 
 /* ── Grid Settings ────────────────────────────────── */
