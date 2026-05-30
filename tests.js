@@ -449,6 +449,39 @@ function runTests() {
     });
   });
 
+  describe('analyzeMushroomGrid()', () => {
+    const baseConfig = { wrapAround: false, farmLocation: 'main', gridWidth: 3, gridHeight: 3 };
+
+    it('identifies stunted trees when adjacent to each other', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[1][1].type = CELL_TREE;
+      grid[1][1].treeType = 'oak';
+      grid[1][2].type = CELL_TREE;
+      grid[1][2].treeType = 'pine';
+
+      const config = { ...baseConfig, grid };
+      const { stuntedTrees } = analyzeMushroomGrid(config);
+
+      assertEqual(stuntedTrees.length, 2);
+      const stuntedStrs = stuntedTrees.map(p => `${p.r},${p.c}`).sort();
+      assertEqual(stuntedStrs[0], '1,1');
+      assertEqual(stuntedStrs[1], '1,2');
+    });
+
+    it('does not identify trees as stunted if they are separated', () => {
+      const grid = createEmptyGrid(3, 3);
+      grid[0][0].type = CELL_TREE;
+      grid[0][0].treeType = 'oak';
+      grid[2][2].type = CELL_TREE;
+      grid[2][2].treeType = 'pine';
+
+      const config = { ...baseConfig, grid };
+      const { stuntedTrees } = analyzeMushroomGrid(config);
+
+      assertEqual(stuntedTrees.length, 0);
+    });
+  });
+
   describe('calculateMushroomLog() - Per Log Details', () => {
     const baseConfig = { wrapAround: false, farmLocation: 'main' };
 
