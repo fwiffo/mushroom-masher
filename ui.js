@@ -267,7 +267,7 @@ function renderMushroomLogsSummary(results, gridArea) {
   const goldPerDay = results.totalGoldPerYear / DAYS_PER_YEAR;
   return `
     <div class="section-header flex-center">
-      <img src="assets/Mushroom_Log.png" class="header-icon"> MUSHROOM LOGS
+      <img src="assets/Mushroom_Log.png" class="header-icon" style="position:relative;top:-4px;"> MUSHROOM LOGS
     </div>
     <div class="gold-summary">
       <div class="big-number">${formatGold(results.totalGoldPerHarvest)}</div>
@@ -420,7 +420,7 @@ function renderProcessingRequirements(results) {
 
   return `
     <div class="results-section">
-      <h2 class="flex-center panel-title"><img src="assets/Dehydrator.png" class="header-icon"> REQUIRED PROCESSING</h2>
+      <h2 class="flex-center panel-title"><img src="assets/Dehydrator.png" class="header-icon"> REQUIRED MACHINES</h2>
       <div class="stat-row">
         <span class="stat-label">Dehydrators</span>
         <span class="stat-value text-accent">${results.dehydratorsRequired}</span>
@@ -536,12 +536,12 @@ function renderTappersSummary(results) {
 
   for (const [key, stats] of Object.entries(results.tapperBreakdown)) {
     html += `
-      <div class="stat-row" style="align-items: flex-start; flex-direction: column; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
-        <div style="display: flex; justify-content: space-between; width: 100%;">
+      <div class="stat-row vertical">
+        <div class="stat-subrow" style="margin-top: 0;">
           <span class="stat-label"><strong>${stats.tapperCount}x</strong> ${key}</span>
           <span class="stat-value">${formatGold(stats.totalGold)}</span>
         </div>
-        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
+        <div class="info-text" style="margin-top: 4px;">
           Produces: ${stats.totalHarvestsPerYear}x ${stats.productName} / Year
         </div>
       </div>

@@ -28,7 +28,7 @@
   /* Rich forest green */
   --text-gold: #c26a02;
 
-  --color-common: #d6b485;
+  --color-common: #754026;
   --color-red: #ef4444;
   --color-purple: #a855f7;
   --color-morel: #d97706;
@@ -183,10 +183,11 @@ a {
   width: 36px;
   object-fit: contain;
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
+  margin-right: 4px;
 }
 
-h3 .header-icon {
-  margin-right: 5px;
+.panel-title .header-icon {
+  margin-right: 0;
 }
 
 .btn-icon {
@@ -692,7 +693,6 @@ img.result-icon {
   flex-direction: column;
   align-items: flex-start;
   padding-top: 6px;
-  border-top: 1px solid var(--border-color);
 }
 
 .stat-row.mini {
