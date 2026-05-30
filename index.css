@@ -551,14 +551,41 @@ img.result-icon {
 
 .grid-cell.unreachable::after,
 .grid-cell.unreachable-path::after {
-  content: '⚠️';
+  content: "!";
   position: absolute;
-  top: -2px;
-  left: -2px;
-  font-size: 14px;
-  pointer-events: none;
+  top: 2px;
+  right: 2px;
+  background: var(--color-red);
+  color: white;
+  font-weight: bold;
+  font-size: 0.6rem;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
   z-index: 10;
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 1));
+}
+
+.grid-cell.stunted::after {
+  content: "!";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--color-chanterelle);
+  color: white;
+  font-weight: bold;
+  font-size: 0.6rem;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  z-index: 10;
 }
 
 .grid-cell.has-tree,

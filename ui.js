@@ -153,6 +153,7 @@ function updateGridHighlighting(results) {
   cells.forEach(c => {
     c.classList.remove('unreachable');
     c.classList.remove('unreachable-path');
+    c.classList.remove('stunted');
     c.removeAttribute('title');
     const badge = c.querySelector('.tree-count-badge');
     if (badge) badge.remove();
@@ -175,6 +176,16 @@ function updateGridHighlighting(results) {
         if (cells[idx]) {
           cells[idx].classList.add('unreachable-path');
           cells[idx].title = "Unreachable by player";
+        }
+      }
+    }
+
+    if (results.stuntedTrees) {
+      for (const pos of results.stuntedTrees) {
+        const idx = pos.r * state.gridWidth + pos.c;
+        if (cells[idx]) {
+          cells[idx].classList.add('stunted');
+          cells[idx].title = "Tree won't grow (too close to another tree)";
         }
       }
     }

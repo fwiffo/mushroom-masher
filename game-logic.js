@@ -189,7 +189,7 @@ function calculateMushroomLog(grid, logR, logC, gridW, gridH, config) {
 }
 
 function calculateFarm(config) {
-  const { emptyCount, treeCount, treeCountsByType, rawLogs, reachableEmpty, unreachableCells } = analyzeMushroomGrid(config);
+  const { emptyCount, treeCount, treeCountsByType, rawLogs, reachableEmpty, unreachableCells, stuntedTrees } = analyzeMushroomGrid(config);
   const { avgCycleDays, totalHarvests } = calculateHarvestTiming(config);
 
   const logEcon = calculateLogEconomics(rawLogs, avgCycleDays, config);
@@ -236,6 +236,7 @@ function calculateFarm(config) {
     tapperBreakdown: tapperEcon.tapperBreakdown,
     unreachableCells: allUnreachable,
     unreachableEmptySpaces,
+    stuntedTrees,
   };
 }
 
@@ -279,6 +280,7 @@ function analyzeMushroomGrid(config) {
   const { grid, gridWidth: w, gridHeight: h } = config;
   const rawLogs = [];
   const unreachableCells = [];
+  const stuntedTrees = [];
   let emptyCount = 0;
   let treeCount = 0;
   const treeCountsByType = {};
@@ -293,6 +295,25 @@ function analyzeMushroomGrid(config) {
       } else if (cell.type === CELL_TREE) {
         treeCount++;
         treeCountsByType[cell.treeType] = (treeCountsByType[cell.treeType] || 0) + 1;
+
+        let isStunted = false;
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            const nr = r + dr;
+            const nc = c + dc;
+            if (nr >= 0 && nr < h && nc >= 0 && nc < w) {
+              if (grid[nr][nc].type === CELL_TREE) {
+                isStunted = true;
+                break;
+              }
+            }
+          }
+          if (isStunted) break;
+        }
+        if (isStunted) {
+          stuntedTrees.push({ r, c });
+        }
       } else if (cell.type === CELL_MUSHLOG) {
         const result = calculateMushroomLog(grid, r, c, w, h, config);
 
@@ -314,7 +335,7 @@ function analyzeMushroomGrid(config) {
     }
   }
 
-  return { emptyCount, treeCount, treeCountsByType, rawLogs, reachableEmpty, unreachableCells };
+  return { emptyCount, treeCount, treeCountsByType, rawLogs, reachableEmpty, unreachableCells, stuntedTrees };
 }
 
 function calculateHarvestTiming(config) {
