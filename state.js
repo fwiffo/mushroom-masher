@@ -26,6 +26,7 @@ const state = {
   hoveredLog: null,
   lastResults: null,
   inspectMode: false,
+  includeMachinesSpace: false,
 };
 
 const STORAGE_KEY = 'stardewMushroomFarmState';
@@ -59,6 +60,7 @@ function getStateData() {
     tapperProfession: state.tapperProfession,
     syncTappers: state.syncTappers,
     processing: state.processing,
+    includeMachinesSpace: state.includeMachinesSpace,
   };
 }
 
@@ -86,6 +88,7 @@ function loadStateData(dataObj) {
       if (data.artisanProfession !== undefined) state.artisanProfession = data.artisanProfession;
       if (data.tapperProfession !== undefined) state.tapperProfession = data.tapperProfession;
       if (data.syncTappers !== undefined) state.syncTappers = data.syncTappers;
+      if (data.includeMachinesSpace !== undefined) state.includeMachinesSpace = data.includeMachinesSpace;
       if (data.processing) state.processing = { ...state.processing, ...data.processing };
       return true;
     }

@@ -170,9 +170,22 @@
             <span class="slider"></span>
           </label>
         </div>
-        <p style="font-size:0.7rem; color:var(--text-secondary); margin-bottom:8px;">Choose how to process each mushroom
-          type. The tool automatically bypasses processing for high-quality mushrooms if selling unprocessed is more
-          profitable.
+        <div class="toggle-row" style="margin-bottom: 12px; padding: 0;">
+          <label>Include Machine Space</label>
+          <label class="toggle">
+            <input type="checkbox" id="include-machines-space">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <p style="font-size:0.7rem; color:var(--text-secondary); margin-bottom:8px;">
+          The "include machine space" option accounts for the space required for
+          processing machines when calculating per-tile results. This includes
+          walking space between the machines.
+        </p>
+        <p style="font-size:0.7rem; color:var(--text-secondary); margin-bottom:8px;">
+          Choose how to process each mushroom type. The tool automatically
+          bypasses processing for high-quality mushrooms when selling
+          high-quality, unprocessed mushrooms is more profitable.
         </p>
         <table class="processing-table" id="processing-table">
           <thead>

@@ -28,6 +28,9 @@ function syncUIWithState() {
   if (tapperToggle) tapperToggle.checked = state.tapperProfession;
   if (syncTappersToggle) syncTappersToggle.checked = state.syncTappers;
 
+  const includeMachinesSpaceToggle = document.getElementById('include-machines-space');
+  if (includeMachinesSpaceToggle) includeMachinesSpaceToggle.checked = state.includeMachinesSpace;
+
   if (rainFrequencyDisplay) {
     let rainPct = state.farmLocation === 'ginger' ? (RAIN_PROB_GINGER * 100) : state.farmLocation === 'desert' ? 0 : (RAIN_PROB_MAIN * 100);
     if (state.useRainTotems && state.farmLocation !== 'desert') rainPct = (RAIN_PROB_TOTEM * 100);
@@ -319,7 +322,9 @@ function setupEventListeners() {
     });
   }
 
-  // Processing
+  const includeMachinesSpaceToggle = document.getElementById('include-machines-space');
+  if (includeMachinesSpaceToggle) bindToggle(includeMachinesSpaceToggle, 'includeMachinesSpace');
+
   $$('.processing-select').forEach(sel => {
     sel.addEventListener('change', () => {
       state.processing[sel.dataset.mushroom] = sel.value;
@@ -368,7 +373,7 @@ function setupEventListeners() {
         farmGridEl.classList.remove('inspect-mode-active');
       }
     });
-    
+
     // Also disable inspect mode when selecting a regular tool
     document.querySelectorAll('.tool-grid .tool-btn').forEach(btn => {
       btn.addEventListener('click', () => {

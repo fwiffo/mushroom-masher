@@ -219,11 +219,20 @@ function calculateFarm(config) {
     }
   }
 
+  const baseGridArea = config.gridWidth * config.gridHeight;
+  let effectiveGridArea = baseGridArea;
+  if (config.includeMachinesSpace) {
+    const machines = (logEcon.dehydratorsRequired || 0) + (logEcon.jarsRequired || 0);
+    effectiveGridArea += Math.ceil(machines * 1.5);
+  }
+
   return {
     emptyCount,
     treeCount,
     treeCountsByType,
-    gridArea: config.gridWidth * config.gridHeight,
+    gridArea: effectiveGridArea,
+    baseGridArea: baseGridArea,
+    effectiveGridArea: effectiveGridArea,
     logs: logEcon.perLogResults,
     logCount: rawLogs.length,
     totalGoldPerHarvest: logEcon.totalGoldPerHarvest,

@@ -234,14 +234,15 @@ function renderResults(results) {
     return;
   }
 
-  const gridArea = results.gridArea || (state.gridWidth * state.gridHeight);
+  let baseGridArea = results.baseGridArea || (state.gridWidth * state.gridHeight);
+  let gridArea = results.effectiveGridArea || baseGridArea;
   let html = '';
 
   html += renderCombinedGold(results, hasTappers, gridArea);
 
   if (results.logCount > 0) {
     html += renderMushroomLogsSummary(results, gridArea);
-    html += renderFarmOverview(results, gridArea);
+    html += renderFarmOverview(results, baseGridArea);
     html += renderMushroomMix(results, gridArea);
     html += renderProcessingRequirements(results);
   }
@@ -279,8 +280,8 @@ function renderCombinedGold(results, hasTappers, gridArea) {
           <span class="stat-value">${formatGold(combinedPerDay)}</span>
         </div>
         <div class="stat-row mini">
-          <span class="stat-label" style="opacity: 0.9;">Per Day / Tile</span>
-          <span class="stat-value" style="color: var(--text-primary);">${formatGold(combinedPerDayPerTile)}</span>
+          <span class="stat-label">Per Day / Tile</span>
+          <span class="stat-value"">${formatGold(combinedPerDayPerTile)}</span>
         </div>
       </div>
     </div>

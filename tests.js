@@ -482,6 +482,52 @@ function runTests() {
     });
   });
 
+  describe('calculateFarm() - Machine Space', () => {
+    const baseConfig = {
+      wrapAround: false,
+      farmLocation: 'main',
+      gridWidth: 5,
+      gridHeight: 5,
+      processing: {
+        common: 'dehydrator',
+        red: 'raw',
+        morel: 'preserves',
+        chanterelle: 'raw',
+        purple: 'raw'
+      }
+    };
+
+    it('calculates grid area normally when includeMachinesSpace is false', () => {
+      const grid = createEmptyGrid(5, 5);
+      grid[2][2].type = CELL_TREE;
+      grid[2][2].treeType = 'oak';
+      grid[2][3].type = CELL_MUSHLOG;
+
+      const config = { ...baseConfig, grid, includeMachinesSpace: false };
+      const results = calculateFarm(config);
+
+      assertEqual(results.baseGridArea, 25);
+      assertEqual(results.effectiveGridArea, 25);
+      assertEqual(results.gridArea, 25);
+    });
+
+    it('adds extra grid area for machines when includeMachinesSpace is true', () => {
+      const grid = createEmptyGrid(5, 5);
+      grid[2][2].type = CELL_TREE;
+      grid[2][2].treeType = 'oak';
+      grid[2][3].type = CELL_MUSHLOG;
+
+      const config = { ...baseConfig, grid, includeMachinesSpace: true };
+      const results = calculateFarm(config);
+
+      const expectedExtra = Math.ceil((results.dehydratorsRequired + results.jarsRequired) * 1.5);
+      assertEqual(results.jarsRequired > 0, true, "Should require at least one jar");
+      assertEqual(results.baseGridArea, 25);
+      assertEqual(results.effectiveGridArea, 25 + expectedExtra);
+      assertEqual(results.gridArea, 25 + expectedExtra);
+    });
+  });
+
   describe('calculateMushroomLog() - Per Log Details', () => {
     const baseConfig = { wrapAround: false, farmLocation: 'main' };
 
@@ -596,7 +642,7 @@ function runTests() {
       ];
       const config = { processing: { common: 'dehydrator' }, artisanProfession: false };
       const econ = calculateLogEconomics(rawLogs, 3, config);
-      
+
       // 5 common mushrooms / 5 per dehydrator = 1 dehydrator day.
       // 1 day / 3 days per cycle = 0.33 => ceil => 1 dehydrator needed.
       assertEqual(econ.dehydratorsRequired, 1);
@@ -607,14 +653,14 @@ function runTests() {
   describe('calculateTapperEconomics()', () => {
     it('calculates tapper yield based on active season', () => {
       const grid = createEmptyGrid(3, 3);
-      grid[1][1].type = CELL_TREE; 
+      grid[1][1].type = CELL_TREE;
       grid[1][1].treeType = 'oak';
       grid[1][1].tapper = 'tapper'; // Oak resin, 150g, 7 days, winter=true
-      
+
       const config = { grid, gridWidth: 3, gridHeight: 3, tapperProfession: false, syncTappers: false };
       const reachableEmpty = Array(3).fill(null).map(() => Array(3).fill(true));
       const econ = calculateTapperEconomics(config, 4, reachableEmpty);
-      
+
       // harvests = floor(112 / 7) = 16
       // gold = 16 * 150 = 2400
       assertEqual(econ.totalTapperGoldPerYear, 2400);
