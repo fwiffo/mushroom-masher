@@ -237,7 +237,7 @@ function renderResults(results) {
   const gridArea = results.gridArea || (state.gridWidth * state.gridHeight);
   let html = '';
 
-  html += renderCombinedGold(results, hasTappers);
+  html += renderCombinedGold(results, hasTappers, gridArea);
 
   if (results.logCount > 0) {
     html += renderMushroomLogsSummary(results, gridArea);
@@ -261,14 +261,27 @@ function renderEmptyState() {
     </div>`;
 }
 
-function renderCombinedGold(results, hasTappers) {
+function renderCombinedGold(results, hasTappers, gridArea) {
   if (results.logCount === 0 && !hasTappers) return '';
   const combined = (results.totalGoldPerYear || 0) + (results.totalTapperGoldPerYear || 0);
+  const combinedPerDay = combined / DAYS_PER_YEAR;
+  const combinedPerDayPerTile = combinedPerDay / gridArea;
+
   return `
     <div class="results-section combined-gold-card">
       <div class="flex-between flex-center p-1">
         <span class="combined-gold-label">Combined Gold / Year</span>
         <span class="combined-gold-value">${formatGold(combined)}</span>
+      </div>
+      <div style="padding-top: 8px;">
+        <div class="stat-row mini">
+          <span class="stat-label">Per Day</span>
+          <span class="stat-value">${formatGold(combinedPerDay)}</span>
+        </div>
+        <div class="stat-row mini">
+          <span class="stat-label" style="opacity: 0.9;">Per Day / Tile</span>
+          <span class="stat-value" style="color: var(--text-primary);">${formatGold(combinedPerDayPerTile)}</span>
+        </div>
       </div>
     </div>
   `;
