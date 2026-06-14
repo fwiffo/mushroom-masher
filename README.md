@@ -90,8 +90,8 @@ rounding down. 50% of the time, it's then multiplied by 2. The final output
 quantity is clamped between 1 and 5.
 - To guarantee the maximum yield of **5 mushrooms per harvest**, a log must have
   at least **10 trees** in its 7x7 radius.
-- However, the number reducing the number of logs to fit 10 trees might not
-  always increase total farm production.
+- However, having 10 trees in reach of every log might not be optimal if the
+  space used for trees crowds out too many logs.
 - Any trees beyond the 10th are always dead weight and taking up space that
   could be used for more logs or for walking space.
 - Because of rounding, it's also **preferable to have an even number of trees in
@@ -144,6 +144,20 @@ types from the "basic" pool. The correct types will be produced with the
 
 Any individual harvest is the same type and quality. This tool calculates the
 average output over all possibilities.
+
+### Mushroom logs are expensive
+
+Early game, the number of mushroom logs you can craft will be the biggest
+bottleneck, so space-efficiency isn't as essential. If you don't have a specific
+limited space you want for your moss farm, you can just stick the mushroom logs
+between trees in your tapper farm.
+
+Moss, in particular, is hard to get in large quantities. I've written [a
+separate guide for farming moss](moss_farming_guide.md) to help ramp up your
+production of mushroom logs.
+
+Late-game, mystic trees will become the bottleneck, so densely packing logs
+around trees will become more important.
 
 ### Maximizing moss production (Tree Fertilizer)
 
